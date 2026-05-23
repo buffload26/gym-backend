@@ -6,8 +6,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.backend.gym.shared.exception.auth.InvalidCredentialsException;
 import com.backend.gym.shared.exception.auth.InvalidTokenException;
+import com.backend.gym.shared.exception.auth.InvalidVerificationCodeException;
+import com.backend.gym.shared.exception.auth.VerificationCodeExpiredException;
 import com.backend.gym.shared.exception.domain.AlreadyExistsException;
+import com.backend.gym.shared.exception.domain.BusinessException;
 import com.backend.gym.shared.exception.domain.NotFoundException;
+import com.backend.gym.shared.exception.user.UserNotVerifiedException;
+
 import org.springframework.http.HttpStatus;
 
 @RestControllerAdvice
@@ -23,6 +28,18 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleInvalidToken(InvalidTokenException ex) {
         return new ErrorResponse("INVALID_TOKEN", ex.getMessage());
+    }
+    
+    @ExceptionHandler({InvalidVerificationCodeException.class, VerificationCodeExpiredException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleVerificationCode(BusinessException ex) {
+        return new ErrorResponse("UNAUTHORIZED", ex.getMessage());
+    }
+
+    @ExceptionHandler(UserNotVerifiedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleUserNotVerified(UserNotVerifiedException ex) {
+        return new ErrorResponse("FORBIDDEN", ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
@@ -40,6 +57,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneric(Exception ex) {
+        ex.printStackTrace();
         return new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred");
     }
 

@@ -1,0 +1,5 @@
+package com.backend.gym.notification.application.port.out;
+
+public interface EmailPort {
+    void send(String to, String subject, String body);
+}

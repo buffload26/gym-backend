@@ -8,6 +8,9 @@ public record User(
     String name,
     String email,
     String passwordHash,
+    String verificationCode,
+    LocalDateTime verificationCodeExpiresAt,
+    boolean isVerified,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {}

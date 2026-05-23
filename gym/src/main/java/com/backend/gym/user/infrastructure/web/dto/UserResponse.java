@@ -9,6 +9,7 @@ public record UserResponse(
     UUID id,
     String name,
     String email,
+    boolean isVerified,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
@@ -17,6 +18,7 @@ public record UserResponse(
             user.id(),
             user.name(),
             user.email(),
+            user.isVerified(),
             user.createdAt(),
             user.updatedAt()
         );

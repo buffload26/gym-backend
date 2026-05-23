@@ -31,6 +31,15 @@ public class UserEntity {
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
+    @Column(name = "verification_code", length = 6)
+    private String verificationCode;
+
+    @Column(name = "verification_code_expires_at")
+    private LocalDateTime verificationCodeExpiresAt;
+
+    @Column(name = "is_verified", nullable = false)
+    private boolean isVerified;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -38,7 +47,11 @@ public class UserEntity {
     private LocalDateTime updatedAt;
 
     public User toDomain() {
-        return new User(id, name, email, passwordHash, createdAt, updatedAt);
+        return new User(
+            id, name, email, passwordHash,
+            verificationCode, verificationCodeExpiresAt, isVerified,
+            createdAt, updatedAt
+        );
     }
 
     public static UserEntity fromDomain(User user) {
@@ -47,6 +60,9 @@ public class UserEntity {
             .name(user.name())
             .email(user.email())
             .passwordHash(user.passwordHash())
+            .verificationCode(user.verificationCode())
+            .verificationCodeExpiresAt(user.verificationCodeExpiresAt())
+            .isVerified(user.isVerified())
             .createdAt(user.createdAt())
             .updatedAt(user.updatedAt())
             .build();

@@ -6,6 +6,7 @@ import com.backend.gym.user.application.port.in.DeleteUserUseCase;
 import com.backend.gym.user.application.port.in.GetUserUseCase;
 import com.backend.gym.user.application.port.in.UpdateUserUseCase;
 import com.backend.gym.user.application.port.in.UpdateUserUseCase.UpdateUserCommand;
+import com.backend.gym.user.domain.User;
 import com.backend.gym.user.infrastructure.web.dto.CreateUserRequest;
 import com.backend.gym.user.infrastructure.web.dto.UpdateUserRequest;
 import com.backend.gym.user.infrastructure.web.dto.UserResponse;
@@ -40,12 +41,12 @@ public class UserController {
         @ApiResponse(responseCode = "409", description = "Email already in use")
     })
     public ResponseEntity<UserResponse> create(@RequestBody CreateUserRequest request) {
-        var command = new CreateUserCommand(
+        CreateUserCommand command = new CreateUserCommand(
             request.name(),
             request.email(),
             request.password()
         );
-        var user = createUserUseCase.execute(command);
+        User user = createUserUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.fromDomain(user));
     }
 
@@ -53,7 +54,7 @@ public class UserController {
     @Operation(summary = "List users", description = "Returns a list of all users")
     @ApiResponse(responseCode = "200", description = "List returned successfully")
     public ResponseEntity<List<UserResponse>> findAll() {
-        var users = getUserUseCase.findAll().stream()
+        List<UserResponse> users = getUserUseCase.findAll().stream()
             .map(UserResponse::fromDomain)
             .toList();
         return ResponseEntity.ok(users);
@@ -66,7 +67,7 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "User not found")
     })
     public ResponseEntity<UserResponse> findById(@PathVariable UUID id) {
-        var user = getUserUseCase.findById(id);
+        User user = getUserUseCase.findById(id);
         return ResponseEntity.ok(UserResponse.fromDomain(user));
     }
 
@@ -78,8 +79,8 @@ public class UserController {
     })
     public ResponseEntity<UserResponse> update(@PathVariable UUID id,
                                                @RequestBody UpdateUserRequest request) {
-        var command = new UpdateUserCommand(id, request.name(), request.email());
-        var user = updateUserUseCase.execute(command);
+        UpdateUserCommand command = new UpdateUserCommand(id, request.name(), request.email());
+        User user = updateUserUseCase.execute(command);
         return ResponseEntity.ok(UserResponse.fromDomain(user));
     }
 

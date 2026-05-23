@@ -35,13 +35,16 @@ public class UserService implements
             throw new EmailAlreadyInUseException(command.email());
         }
 
-        var hashed = passwordEncoder.encode(command.password());
+        String hashed = passwordEncoder.encode(command.password());
 
-        var user = new User(
+        User user = new User(
             null,
             command.name(),
             command.email(),
             hashed,
+            null,
+            null,
+            false,
             LocalDateTime.now(),
             LocalDateTime.now()
         );
@@ -67,12 +70,15 @@ public class UserService implements
 
     @Override
     public User execute(UpdateUserCommand command) {
-        var existing = findById(command.id());
-        var updated = new User(
+        User existing = findById(command.id());
+        User updated = new User(
             existing.id(),
             command.name(),
             command.email(),
             existing.passwordHash(),
+            existing.verificationCode(),
+            existing.verificationCodeExpiresAt(),
+            existing.isVerified(),
             existing.createdAt(),
             LocalDateTime.now()
         );

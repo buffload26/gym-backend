@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.backend.gym.user.application.port.out.UserRepositoryPort;
+import com.backend.gym.user.domain.User;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,11 +41,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         if (jwtAdapter.isTokenValid(token)) {
-            var email = jwtAdapter.extractEmail(token);
-            var user = userRepository.findByEmail(email).orElse(null);
+            String email = jwtAdapter.extractEmail(token);
+            User user = userRepository.findByEmail(email).orElse(null);
 
             if (user != null) {
-                var authToken = new UsernamePasswordAuthenticationToken(
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     email, null, List.of()
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
