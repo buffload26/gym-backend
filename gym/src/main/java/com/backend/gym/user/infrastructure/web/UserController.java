@@ -16,11 +16,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -53,10 +57,21 @@ public class UserController {
     @GetMapping
     @Operation(summary = "List users", description = "Returns a list of all users")
     @ApiResponse(responseCode = "200", description = "List returned successfully")
-    public ResponseEntity<List<UserResponse>> findAll() {
-        List<UserResponse> users = getUserUseCase.findAll().stream()
-            .map(UserResponse::fromDomain)
-            .toList();
+    public ResponseEntity<Page<UserResponse>> findAll(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "name") String sort,
+        @RequestParam(defaultValue = "asc") String direction) {
+
+        Pageable pageable = PageRequest.of(
+            page, size,
+            direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+            sort
+        );
+
+        Page<UserResponse> users = getUserUseCase.findAll(pageable)
+            .map(UserResponse::fromDomain);
+
         return ResponseEntity.ok(users);
     }
 

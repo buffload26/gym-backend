@@ -1,8 +1,11 @@
 package com.backend.gym.workout.infrastructure.web;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.gym.workout.application.port.in.CreateWorkoutUseCase;
@@ -70,10 +74,22 @@ public class WorkoutController {
     @GetMapping("/user/{userId}")
     @Operation(summary = "List workouts by user", description = "Returns all workouts for a specific user")
     @ApiResponse(responseCode = "200", description = "List returned successfully")
-    public ResponseEntity<List<WorkoutResponse>> findAllByUser(@PathVariable UUID userId) {
-        List<WorkoutResponse> workouts = getWorkoutUseCase.findAllByUser(userId).stream()
-            .map(workout -> WorkoutResponse.fromDomain(workout))
-            .toList();
+    public ResponseEntity<Page<WorkoutResponse>> findAllByUser(
+        @PathVariable UUID userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "createdAt") String sort,
+        @RequestParam(defaultValue = "desc") String direction) {
+
+        Pageable pageable = PageRequest.of(
+            page, size,
+            direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+            sort
+        );
+
+        Page<WorkoutResponse> workouts = getWorkoutUseCase.findAllByUser(userId, pageable)
+            .map(workout -> WorkoutResponse.fromDomain(workout));
+
         return ResponseEntity.ok(workouts);
     }
 

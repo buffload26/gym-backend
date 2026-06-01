@@ -1,8 +1,9 @@
 package com.backend.gym.workout.application.service;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
@@ -60,8 +61,8 @@ public class WorkoutExerciseService implements
     }
 
     @Override
-    public List<WorkoutExercise> findAllByWorkout(UUID workoutId) {
-        return repository.findAllByWorkoutId(workoutId);
+    public Page<WorkoutExercise> findAllByWorkout(UUID workoutId, Pageable pageable) {
+        return repository.findAllByWorkoutId(workoutId, pageable);
     }
 
     @Override

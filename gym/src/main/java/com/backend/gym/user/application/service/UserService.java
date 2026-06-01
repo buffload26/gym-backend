@@ -1,9 +1,10 @@
 package com.backend.gym.user.application.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,8 +65,8 @@ public class UserService implements
     }
 
     @Override
-    public List<User> findAll() {
-        return repository.findAll();
+    public Page<User> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
     @Override

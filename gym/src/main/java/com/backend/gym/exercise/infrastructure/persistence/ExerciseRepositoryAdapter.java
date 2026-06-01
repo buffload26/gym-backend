@@ -1,9 +1,10 @@
 package com.backend.gym.exercise.infrastructure.persistence;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
@@ -28,23 +29,14 @@ public class ExerciseRepositoryAdapter implements ExerciseRepositoryPort {
     }
 
     @Override
-    public List<Exercise> findAll() {
-        return jpaRepository.findAll().stream()
-            .map(ExerciseEntity::toDomain)
-            .toList();
+    public Page<Exercise> findAllActive(Pageable pageable) {
+        return jpaRepository.findAllByDeletedAtIsNull(pageable)
+            .map(ExerciseEntity::toDomain);
     }
 
     @Override
-    public List<Exercise> findAllByCreatedByUserId(UUID userId) {
-        return jpaRepository.findAllByCreatedByUserId(userId).stream()
-            .map(ExerciseEntity::toDomain)
-            .toList();
-    }
-
-    @Override
-    public List<Exercise> findAllActive() {
-        return jpaRepository.findAllByDeletedAtIsNull().stream()
-            .map(ExerciseEntity::toDomain)
-            .toList();
+    public Page<Exercise> findAllByCreatedByUserId(UUID userId, Pageable pageable) {
+        return jpaRepository.findAllByCreatedByUserIdAndDeletedAtIsNull(userId, pageable)
+            .map(ExerciseEntity::toDomain);
     }
 }

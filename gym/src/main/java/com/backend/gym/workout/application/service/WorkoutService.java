@@ -1,9 +1,10 @@
 package com.backend.gym.workout.application.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.backend.gym.shared.exception.user.UserNotFoundException;
@@ -53,8 +54,8 @@ public class WorkoutService implements
     }
 
     @Override
-    public List<Workout> findAllByUser(UUID userId) {
-        return repository.findAllByUserId(userId);
+    public Page<Workout> findAllByUser(UUID userId, Pageable pageable) {
+        return repository.findAllByUserId(userId, pageable);
     }
 
     @Override

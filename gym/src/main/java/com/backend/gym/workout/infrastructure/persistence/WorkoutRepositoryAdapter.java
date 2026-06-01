@@ -1,9 +1,10 @@
 package com.backend.gym.workout.infrastructure.persistence;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.backend.gym.workout.application.port.out.WorkoutRepositoryPort;
@@ -28,10 +29,9 @@ public class WorkoutRepositoryAdapter implements WorkoutRepositoryPort {
     }
 
     @Override
-    public List<Workout> findAllByUserId(UUID userId) {
-        return jpaRepository.findAllByUserId(userId).stream()
-            .map(WorkoutEntity::toDomain)
-            .toList();
+    public Page<Workout> findAllByUserId(UUID userId, Pageable pageable) {
+        return jpaRepository.findAllByUserId(userId, pageable)
+            .map(WorkoutEntity::toDomain);
     }
 
     @Override

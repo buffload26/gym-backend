@@ -1,8 +1,11 @@
 package com.backend.gym.exercise.infrastructure.web;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.gym.exercise.application.port.in.CreateExerciseUseCase;
@@ -57,13 +61,25 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ExerciseResponse.fromDomain(exercise));
     }
 
-    @GetMapping
+    @GetMapping("/user/{userId}")
     @Operation(summary = "List exercises", description = "Returns all active exercises")
     @ApiResponse(responseCode = "200", description = "List returned successfully")
-    public ResponseEntity<List<ExerciseResponse>> findAll() {
-        List<ExerciseResponse> exercises = getExerciseUseCase.findAll().stream()
-            .map(ExerciseResponse::fromDomain)
-            .toList();
+    public ResponseEntity<Page<ExerciseResponse>> findAllByUser(
+        @PathVariable UUID userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "name") String sort,
+        @RequestParam(defaultValue = "asc") String direction) {
+
+        Pageable pageable = PageRequest.of(
+            page, size,
+            direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+            sort
+        );
+
+        Page<ExerciseResponse> exercises = getExerciseUseCase.findAllByUser(userId, pageable)
+            .map(ExerciseResponse::fromDomain);
+
         return ResponseEntity.ok(exercises);
     }
 

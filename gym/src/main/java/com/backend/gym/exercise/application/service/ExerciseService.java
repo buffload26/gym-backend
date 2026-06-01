@@ -1,9 +1,10 @@
 package com.backend.gym.exercise.application.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.backend.gym.exercise.application.port.in.CreateExerciseUseCase;
@@ -62,13 +63,13 @@ public class ExerciseService implements
     }
 
     @Override
-    public List<Exercise> findAll() {
-        return repository.findAllActive();
+    public Page<Exercise> findAll(Pageable pageable) {
+        return repository.findAllActive(pageable);
     }
 
     @Override
-    public List<Exercise> findAllByUser(UUID userId) {
-        return repository.findAllByCreatedByUserId(userId);
+    public Page<Exercise> findAllByUser(UUID userId, Pageable pageable) {
+        return repository.findAllByCreatedByUserId(userId, pageable);
     }
 
     @Override

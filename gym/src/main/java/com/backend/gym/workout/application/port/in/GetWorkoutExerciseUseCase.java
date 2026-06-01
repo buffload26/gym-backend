@@ -1,11 +1,13 @@
 package com.backend.gym.workout.application.port.in;
 
-import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.backend.gym.workout.domain.WorkoutExercise;
 
 public interface GetWorkoutExerciseUseCase {
     WorkoutExercise findById(UUID id);
-    List<WorkoutExercise> findAllByWorkout(UUID workoutId);
+    Page<WorkoutExercise> findAllByWorkout(UUID workoutId, Pageable pageable);
 }

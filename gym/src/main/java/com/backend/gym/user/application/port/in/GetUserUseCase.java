@@ -1,12 +1,14 @@
 package com.backend.gym.user.application.port.in;
 
-import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.backend.gym.user.domain.User;
 
 public interface GetUserUseCase {
     User findById(UUID id);
     User findByEmail(String email);
-    List<User> findAll();
+    Page<User> findAll(Pageable pageable); 
 }

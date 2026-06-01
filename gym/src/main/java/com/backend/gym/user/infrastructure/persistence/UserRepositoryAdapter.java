@@ -1,9 +1,10 @@
 package com.backend.gym.user.infrastructure.persistence;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.backend.gym.user.application.port.out.UserRepositoryPort;
@@ -33,10 +34,9 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public List<User> findAll() {
-        return jpaRepository.findAll().stream()
-            .map(UserEntity::toDomain)
-            .toList();
+    public Page<User> findAll(Pageable pageable) {
+        return jpaRepository.findAll(pageable)
+            .map(UserEntity::toDomain);
     }
 
     @Override

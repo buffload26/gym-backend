@@ -1,9 +1,10 @@
 package com.backend.gym.loadentry.infrastructure.persistence;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.backend.gym.exercise.infrastructure.persistence.ExerciseEntity;
@@ -54,17 +55,15 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     }
 
     @Override
-    public List<LoadEntry> findAllByUserId(UUID userId) {
-        return jpaRepository.findAllByUserId(userId).stream()
-            .map(LoadEntryEntity::toDomain)
-            .toList();
+    public Page<LoadEntry> findAllByUserId(UUID userId, Pageable pageable) {
+        return jpaRepository.findAllByUserId(userId, pageable)
+            .map(LoadEntryEntity::toDomain);
     }
 
     @Override
-    public List<LoadEntry> findAllByExerciseId(UUID exerciseId) {
-        return jpaRepository.findAllByExerciseId(exerciseId).stream()
-            .map(LoadEntryEntity::toDomain)
-            .toList();
+    public Page<LoadEntry> findAllByExerciseId(UUID exerciseId, Pageable pageable) {
+        return jpaRepository.findAllByExerciseId(exerciseId, pageable)
+            .map(LoadEntryEntity::toDomain);
     }
 
     @Override
