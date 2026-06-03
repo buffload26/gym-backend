@@ -35,8 +35,8 @@ public class ExerciseRepositoryAdapter implements ExerciseRepositoryPort {
     }
 
     @Override
-    public Page<Exercise> findAllByCreatedByUserId(UUID userId, Pageable pageable) {
-        return jpaRepository.findAllByCreatedByUserIdAndDeletedAtIsNull(userId, pageable)
+    public Page<Exercise> findAllByCreatedByUserIdorIsDefault(UUID userId, Pageable pageable) {
+        return jpaRepository.findAllByCreatedByUserIdOrIsDefaultAndDeletedAtIsNull(userId, pageable)
             .map(ExerciseEntity::toDomain);
     }
 }

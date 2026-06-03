@@ -19,7 +19,7 @@ import com.backend.gym.auth.application.port.in.UpdatePasswordUseCase;
 import com.backend.gym.auth.application.port.in.UpdatePasswordUseCase.UpdatePasswordCommand;
 import com.backend.gym.auth.application.port.in.ValidateVerificationCodeUseCase;
 import com.backend.gym.auth.application.port.in.ValidateVerificationCodeUseCase.ValidateVerificationCodeCommand;
-import com.backend.gym.auth.domain.TokenPair;
+import com.backend.gym.auth.domain.AuthResult;
 import com.backend.gym.auth.infrastructure.web.dto.LoginRequest;
 import com.backend.gym.auth.infrastructure.web.dto.MessageResponse;
 import com.backend.gym.auth.infrastructure.web.dto.RecoveryPasswordRequest;
@@ -55,8 +55,8 @@ public class AuthController {
     })
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         LoginCommand command = new LoginCommand(request.email(), request.password());
-        TokenPair tokenPair = loginUseCase.execute(command);
-        return ResponseEntity.ok(TokenResponse.fromDomain(tokenPair));
+        AuthResult authResult = loginUseCase.execute(command);
+        return ResponseEntity.ok(TokenResponse.fromDomain(authResult.tokenPair(), authResult.user()));
     }
 
     @PostMapping("/refresh")
@@ -66,8 +66,8 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
     })
     public ResponseEntity<TokenResponse> refresh(@RequestHeader("Refresh-Token") String refreshToken) {
-        TokenPair tokenPair = refreshTokenUseCase.execute(refreshToken);
-        return ResponseEntity.ok(TokenResponse.fromDomain(tokenPair));
+        AuthResult authResult = refreshTokenUseCase.execute(refreshToken);
+        return ResponseEntity.ok(TokenResponse.fromDomain(authResult.tokenPair(), authResult.user()));
     }
 
     @PostMapping("/send-verification-code")

@@ -1,9 +1,9 @@
 package com.backend.gym.auth.application.port.in;
 
-import com.backend.gym.auth.domain.TokenPair;
+import com.backend.gym.auth.domain.AuthResult;
 
 public interface LoginUseCase {
-    TokenPair execute(LoginCommand command);
+    AuthResult execute(LoginCommand command);
 
     record LoginCommand(String email, String password) {}
 }

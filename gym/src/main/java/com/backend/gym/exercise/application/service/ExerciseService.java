@@ -69,7 +69,7 @@ public class ExerciseService implements
 
     @Override
     public Page<Exercise> findAllByUser(UUID userId, Pageable pageable) {
-        return repository.findAllByCreatedByUserId(userId, pageable);
+        return repository.findAllByCreatedByUserIdorIsDefault(userId, pageable);
     }
 
     @Override

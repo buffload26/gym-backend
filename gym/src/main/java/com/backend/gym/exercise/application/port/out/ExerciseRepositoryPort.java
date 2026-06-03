@@ -12,5 +12,5 @@ public interface ExerciseRepositoryPort {
     Exercise save(Exercise exercise);
     Optional<Exercise> findById(UUID id);
     Page<Exercise> findAllActive(Pageable pageable);
-    Page<Exercise> findAllByCreatedByUserId(UUID userId, Pageable pageable);
+    Page<Exercise> findAllByCreatedByUserIdorIsDefault(UUID userId, Pageable pageable);
 }

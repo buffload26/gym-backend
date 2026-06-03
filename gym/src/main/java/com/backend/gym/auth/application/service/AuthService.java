@@ -13,6 +13,7 @@ import com.backend.gym.auth.application.port.in.SendVerificationCodeUseCase;
 import com.backend.gym.auth.application.port.in.UpdatePasswordUseCase;
 import com.backend.gym.auth.application.port.in.ValidateVerificationCodeUseCase;
 import com.backend.gym.auth.application.port.out.JwtPort;
+import com.backend.gym.auth.domain.AuthResult;
 import com.backend.gym.auth.domain.TokenPair;
 import com.backend.gym.notification.application.port.in.SendEmailUseCase;
 import com.backend.gym.notification.application.port.in.SendEmailUseCase.SendEmailCommand;
@@ -43,7 +44,7 @@ public class AuthService implements
     private final SendEmailUseCase sendEmailUseCase;
 
     @Override
-    public TokenPair execute(LoginCommand command) {
+    public AuthResult execute(LoginCommand command) {
         User user = userRepository.findByEmail(command.email())
             .orElseThrow(() -> new InvalidCredentialsException());
 
@@ -55,14 +56,17 @@ public class AuthService implements
             throw new UserNotVerifiedException();
         }
 
-        return new TokenPair(
-            jwtPort.generateAccessToken(user.email()),
-            jwtPort.generateRefreshToken(user.email())
+        return new AuthResult(
+            new TokenPair(
+                jwtPort.generateAccessToken(user.email()),
+                jwtPort.generateRefreshToken(user.email())
+            ),
+            user
         );
     }
 
     @Override
-    public TokenPair execute(String refreshToken) {
+    public AuthResult execute(String refreshToken) {
         if (!jwtPort.isTokenValid(refreshToken)) {
             throw new InvalidTokenException();
         }
@@ -73,9 +77,14 @@ public class AuthService implements
 
         String email = jwtPort.extractEmail(refreshToken);
 
-        return new TokenPair(
-            jwtPort.generateAccessToken(email),
-            jwtPort.generateRefreshToken(email)
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException(email));
+
+        return new AuthResult(
+            new TokenPair(
+                jwtPort.generateAccessToken(email),
+                jwtPort.generateRefreshToken(email)
+            ),
+            user
         );
     }
 
