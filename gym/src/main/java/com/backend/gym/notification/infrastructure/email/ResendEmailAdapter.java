@@ -14,12 +14,15 @@ public class ResendEmailAdapter implements EmailPort {
     @Value("${RESEND_API_KEY}")
     private String apiKey;
 
+    @Value("${RESEND_FROM_EMAIL}")
+    private String fromEmail;
+
     @Override
     public void send(String to, String subject, String body) {
         try {
             Resend resend = new Resend(apiKey);
             CreateEmailOptions request = CreateEmailOptions.builder()
-                .from("onboarding@resend.dev")
+                .from(fromEmail)
                 .to(to)
                 .subject(subject)
                 .text(body)
