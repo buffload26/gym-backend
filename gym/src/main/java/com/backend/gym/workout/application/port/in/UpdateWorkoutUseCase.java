@@ -10,6 +10,7 @@ public interface UpdateWorkoutUseCase {
     record UpdateWorkoutCommand(
         UUID id,
         String name,
-        String description
+        String description,
+        String imageUrl
     ) {}
 }

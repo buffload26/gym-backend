@@ -54,7 +54,7 @@ public class WorkoutController {
     })
     public ResponseEntity<WorkoutResponse> create(@RequestBody CreateWorkoutRequest request) {
         CreateWorkoutCommand command = new CreateWorkoutCommand(
-        request.userId(), request.name(), request.description()
+        request.userId(), request.name(), request.description(), request.imageUrl()
     );
         Workout workout = createWorkoutUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(WorkoutResponse.fromDomain(workout));
@@ -101,7 +101,7 @@ public class WorkoutController {
     })
     public ResponseEntity<WorkoutResponse> update(@PathVariable UUID id,
                                                   @RequestBody UpdateWorkoutRequest request) {
-        UpdateWorkoutCommand command = new UpdateWorkoutCommand(id, request.name(), request.description());
+        UpdateWorkoutCommand command = new UpdateWorkoutCommand(id, request.name(), request.description(), request.imageUrl());
         Workout workout = updateWorkoutUseCase.execute(command);
         return ResponseEntity.ok(WorkoutResponse.fromDomain(workout));
     }

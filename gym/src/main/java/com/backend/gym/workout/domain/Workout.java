@@ -10,6 +10,7 @@ public record Workout(
     User user,    
     String name,
     String description,
+    String imageUrl,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {}

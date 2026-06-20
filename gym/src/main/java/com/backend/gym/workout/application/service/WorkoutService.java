@@ -41,6 +41,7 @@ public class WorkoutService implements
             user,
             command.name(),
             command.description(),
+            command.imageUrl(),
             LocalDateTime.now(),
             LocalDateTime.now()
         );
@@ -67,6 +68,7 @@ public class WorkoutService implements
             existing.user(),
             command.name(),
             command.description(),
+            command.imageUrl(),
             existing.createdAt(),
             LocalDateTime.now()
         );

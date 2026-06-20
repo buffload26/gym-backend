@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.backend.gym.loadentry.domain.LoadEntry;
 
-public record LoadEntrySimpleResponse(
+public record LoadEntrySummaryResponse(
     UUID id,
     LocalDate performedAt,
     BigDecimal loadKg,
@@ -16,8 +16,8 @@ public record LoadEntrySimpleResponse(
     String notes,
     LocalDateTime createdAt
 ) {
-    public static LoadEntrySimpleResponse fromDomain(LoadEntry loadEntry) {
-        return new LoadEntrySimpleResponse(
+    public static LoadEntrySummaryResponse fromDomain(LoadEntry loadEntry) {
+        return new LoadEntrySummaryResponse(
             loadEntry.id(),
             loadEntry.performedAt(),
             loadEntry.loadKg(),

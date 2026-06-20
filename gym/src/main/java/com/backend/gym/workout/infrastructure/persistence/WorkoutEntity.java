@@ -42,6 +42,9 @@ public class WorkoutEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -49,7 +52,7 @@ public class WorkoutEntity {
     private LocalDateTime updatedAt;
 
     public Workout toDomain() {
-        return new Workout(id, user.toDomain(), name, description, createdAt, updatedAt);
+        return new Workout(id, user.toDomain(), name, description, imageUrl, createdAt, updatedAt);
     }
 
     public static WorkoutEntity fromDomain(Workout workout) {
@@ -58,6 +61,7 @@ public class WorkoutEntity {
             .user(UserEntity.fromDomain(workout.user()))
             .name(workout.name())
             .description(workout.description())
+            .imageUrl(workout.imageUrl())
             .createdAt(workout.createdAt())
             .updatedAt(workout.updatedAt())
             .build();

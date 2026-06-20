@@ -10,6 +10,7 @@ public interface CreateWorkoutUseCase {
     record CreateWorkoutCommand(
         UUID userId,
         String name,
-        String description
+        String description,
+        String imageUrl
     ) {}
 }

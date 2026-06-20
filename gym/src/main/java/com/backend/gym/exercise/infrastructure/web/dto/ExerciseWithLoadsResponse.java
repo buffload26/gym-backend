@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.backend.gym.exercise.domain.ExerciseWithLoads;
-import com.backend.gym.loadentry.infrastructure.web.dto.LoadEntrySimpleResponse;
+import com.backend.gym.loadentry.infrastructure.web.dto.LoadEntrySummaryResponse;
 import com.backend.gym.user.infrastructure.web.dto.UserResponse;
 
 public record ExerciseWithLoadsResponse(
@@ -19,7 +19,7 @@ public record ExerciseWithLoadsResponse(
     UserResponse createdByUser,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
-    List<LoadEntrySimpleResponse> loads
+    List<LoadEntrySummaryResponse> loads
 ) {
     public static ExerciseWithLoadsResponse fromDomain(ExerciseWithLoads domain) {
         var exercise = domain.exercise();
@@ -34,7 +34,7 @@ public record ExerciseWithLoadsResponse(
             exercise.createdByUser() != null ? UserResponse.fromDomain(exercise.createdByUser()) : null,
             exercise.createdAt(),
             exercise.updatedAt(),
-            domain.loads().stream().map(LoadEntrySimpleResponse::fromDomain).toList()
+            domain.loads().stream().map(LoadEntrySummaryResponse::fromDomain).toList()
         );
     }
 }
