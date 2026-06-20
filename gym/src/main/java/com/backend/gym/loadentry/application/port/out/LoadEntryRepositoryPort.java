@@ -1,5 +1,6 @@
 package com.backend.gym.loadentry.application.port.out;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,5 +14,6 @@ public interface LoadEntryRepositoryPort {
     Optional<LoadEntry> findById(UUID id);
     Page<LoadEntry> findAllByUserId(UUID userId, Pageable pageable);
     Page<LoadEntry> findAllByExerciseId(UUID exerciseId, Pageable pageable);
+    List<LoadEntry> findAllByExerciseIdIn(List<UUID> exerciseIds);
     void deleteById(UUID id);
 }

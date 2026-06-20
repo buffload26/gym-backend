@@ -1,5 +1,6 @@
 package com.backend.gym.loadentry.infrastructure.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,6 +53,14 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     @Override
     public Optional<LoadEntry> findById(UUID id) {
         return jpaRepository.findById(id).map(LoadEntryEntity::toDomain);
+    }
+
+    @Override
+    public List<LoadEntry> findAllByExerciseIdIn(List<UUID> exerciseIds) {
+        return jpaRepository.findAllByExerciseIdIn(exerciseIds)
+            .stream()
+            .map(LoadEntryEntity::toDomain)
+            .toList();
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.backend.gym.exercise.application.port.in.UpdateExerciseUseCase.Update
 import com.backend.gym.exercise.domain.Exercise;
 import com.backend.gym.exercise.infrastructure.web.dto.CreateExerciseRequest;
 import com.backend.gym.exercise.infrastructure.web.dto.ExerciseResponse;
+import com.backend.gym.exercise.infrastructure.web.dto.ExerciseWithLoadsResponse;
 import com.backend.gym.exercise.infrastructure.web.dto.UpdateExerciseRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,7 +65,7 @@ public class ExerciseController {
     @GetMapping("/user/{userId}")
     @Operation(summary = "List exercises", description = "Returns all active exercises")
     @ApiResponse(responseCode = "200", description = "List returned successfully")
-    public ResponseEntity<Page<ExerciseResponse>> findAllByUser(
+    public ResponseEntity<Page<ExerciseWithLoadsResponse>> findAllByUser(
         @PathVariable UUID userId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
@@ -77,8 +78,8 @@ public class ExerciseController {
             sort
         );
 
-        Page<ExerciseResponse> exercises = getExerciseUseCase.findAllByUser(userId, pageable)
-            .map(ExerciseResponse::fromDomain);
+        Page<ExerciseWithLoadsResponse> exercises = getExerciseUseCase.findAllByUserWithLoads(userId, pageable)
+            .map(ExerciseWithLoadsResponse::fromDomain);
 
         return ResponseEntity.ok(exercises);
     }
