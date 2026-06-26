@@ -21,6 +21,7 @@ import com.backend.gym.loadentry.application.port.out.LoadEntryRepositoryPort;
 import com.backend.gym.loadentry.domain.LoadEntry;
 import com.backend.gym.shared.exception.exercise.ExerciseNotFoundException;
 import com.backend.gym.shared.exception.user.UserNotFoundException;
+import com.backend.gym.storage.application.port.out.FileStoragePort;
 import com.backend.gym.user.application.port.out.UserRepositoryPort;
 import com.backend.gym.user.domain.User;
 
@@ -38,6 +39,8 @@ public class ExerciseService implements
     private final UserRepositoryPort userRepository;
     private final LoadEntryRepositoryPort loadEntryRepository;
 
+    private final FileStoragePort fileStoragePort;
+
     @Override
     public Exercise execute(CreateExerciseCommand command) {
         User createdByUser = null;
@@ -47,12 +50,17 @@ public class ExerciseService implements
                 .orElseThrow(() -> new UserNotFoundException(command.createdByUserId()));
         }
 
+        String imageUrl = null;
+        if (command.image() != null && !command.image().isEmpty()) {
+            imageUrl = fileStoragePort.upload(command.image());
+        }
+
         Exercise exercise = new Exercise(
             null,
             command.name(),
             command.description(),
             command.muscleGroup(),
-            command.imageUrl(),
+            imageUrl,
             command.videoUrl(),
             command.isDefault(),
             createdByUser,
@@ -105,12 +113,20 @@ public class ExerciseService implements
     @Override
     public Exercise execute(UpdateExerciseCommand command) {
         Exercise existing = findById(command.id());
+
+        String newImageUrl = existing.imageUrl();
+        
+        if (command.image() != null && !command.image().isEmpty()) {
+            newImageUrl = fileStoragePort.replaceFile(command.image(), existing.imageUrl());
+            
+        }
+
         Exercise updated = new Exercise(
             existing.id(),
             command.name(),
             command.description(),
             command.muscleGroup(),
-            command.imageUrl(),
+            newImageUrl,
             command.videoUrl(),
             existing.isDefault(),
             existing.createdByUser(),
@@ -118,6 +134,7 @@ public class ExerciseService implements
             existing.createdAt(),
             LocalDateTime.now()
         );
+        
         return repository.save(updated);
     }
 

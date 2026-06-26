@@ -11,10 +11,10 @@ import com.resend.services.emails.model.CreateEmailOptions;
 @Component
 public class ResendEmailAdapter implements EmailPort {
 
-    @Value("${RESEND_API_KEY}")
+    @Value("${resend.api-key}")
     private String apiKey;
 
-    @Value("${RESEND_FROM_EMAIL}")
+    @Value("${resend.from-email}")
     private String fromEmail;
 
     @Override

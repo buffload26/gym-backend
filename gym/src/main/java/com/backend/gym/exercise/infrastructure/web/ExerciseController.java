@@ -7,13 +7,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,15 +48,16 @@ public class ExerciseController {
     private final UpdateExerciseUseCase updateExerciseUseCase;
     private final SoftDeleteExerciseUseCase softDeleteExerciseUseCase;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create exercise", description = "Creates a new exercise")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Exercise created successfully")
     })
-    public ResponseEntity<ExerciseResponse> create(@RequestBody CreateExerciseRequest request) {
+    public ResponseEntity<ExerciseResponse> create(@ModelAttribute CreateExerciseRequest request) {
+
         CreateExerciseCommand command = new CreateExerciseCommand(
             request.name(), request.description(), request.muscleGroup(),
-            request.imageUrl(), request.videoUrl(), request.isDefault(),
+            request.image(), request.videoUrl(), request.isDefault(),
             request.createdByUserId()
         );
         Exercise exercise = createExerciseUseCase.execute(command);
@@ -95,17 +97,17 @@ public class ExerciseController {
         return ResponseEntity.ok(ExerciseResponse.fromDomain(exercise));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Update exercise", description = "Updates an existing exercise")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Exercise updated successfully"),
         @ApiResponse(responseCode = "404", description = "Exercise not found")
     })
     public ResponseEntity<ExerciseResponse> update(@PathVariable UUID id,
-                                                   @RequestBody UpdateExerciseRequest request) {
+                                                   @ModelAttribute UpdateExerciseRequest request) {
         UpdateExerciseCommand command = new UpdateExerciseCommand(
             id, request.name(), request.description(), request.muscleGroup(),
-            request.imageUrl(), request.videoUrl()
+            request.image(), request.videoUrl()
         );
         Exercise exercise = updateExerciseUseCase.execute(command);
         return ResponseEntity.ok(ExerciseResponse.fromDomain(exercise));

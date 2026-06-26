@@ -11,6 +11,7 @@ import com.backend.gym.shared.exception.auth.VerificationCodeExpiredException;
 import com.backend.gym.shared.exception.domain.AlreadyExistsException;
 import com.backend.gym.shared.exception.domain.BusinessException;
 import com.backend.gym.shared.exception.domain.NotFoundException;
+import com.backend.gym.shared.exception.storage.FileUploadException;
 import com.backend.gym.shared.exception.user.UserNotVerifiedException;
 
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleAlreadyExists(AlreadyExistsException ex) {
         return new ErrorResponse("CONFLICT", ex.getMessage());
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleFileUpload(FileUploadException ex) {
+        return new ErrorResponse("FILE_UPLOAD_ERROR", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
