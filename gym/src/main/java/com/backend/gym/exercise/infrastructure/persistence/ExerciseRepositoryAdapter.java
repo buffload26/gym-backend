@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
@@ -37,6 +38,17 @@ public class ExerciseRepositoryAdapter implements ExerciseRepositoryPort {
     @Override
     public Page<Exercise> findAllByCreatedByUserIdorIsDefault(UUID userId, Pageable pageable) {
         return jpaRepository.findAllByCreatedByUserIdOrIsDefaultAndDeletedAtIsNull(userId, pageable)
+            .map(ExerciseEntity::toDomain);
+    }
+
+    @Override
+    public Page<Exercise> findAllByFilter(UUID userId, String muscleGroup, Pageable pageable) {
+        Specification<ExerciseEntity> spec = Specification
+            .where(ExerciseSpecification.isNotDeleted())
+            .and(ExerciseSpecification.byUserId(userId))
+            .and(ExerciseSpecification.byMuscleGroup(muscleGroup));
+
+        return jpaRepository.findAll(spec, pageable)
             .map(ExerciseEntity::toDomain);
     }
 }

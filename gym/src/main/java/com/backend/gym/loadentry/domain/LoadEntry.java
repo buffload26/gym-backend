@@ -16,6 +16,7 @@ public record LoadEntry(
     Workout workout,
     LocalDate performedAt,
     BigDecimal loadKg,
+    BigDecimal warmupLoadKg,
     Integer sets,
     Integer reps,
     String notes,

@@ -12,6 +12,7 @@ import com.backend.gym.exercise.domain.Exercise;
 import com.backend.gym.loadentry.application.port.in.CreateLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.DeleteLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.GetLoadEntryUseCase;
+import com.backend.gym.loadentry.application.port.in.UpdateLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.out.LoadEntryRepositoryPort;
 import com.backend.gym.loadentry.domain.LoadEntry;
 import com.backend.gym.shared.exception.exercise.ExerciseNotFoundException;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class LoadEntryService implements
         CreateLoadEntryUseCase,
         GetLoadEntryUseCase,
+        UpdateLoadEntryUseCase,
         DeleteLoadEntryUseCase {
 
     private final LoadEntryRepositoryPort repository;
@@ -58,6 +60,7 @@ public class LoadEntryService implements
             workout,
             command.performedAt(),
             command.loadKg(),
+            command.warmupLoadKg(),
             command.sets(),
             command.reps(),
             command.notes(),
@@ -80,6 +83,27 @@ public class LoadEntryService implements
     @Override
     public Page<LoadEntry> findAllByExercise(UUID exerciseId, Pageable pageable) {
         return repository.findAllByExerciseId(exerciseId, pageable);
+    }
+
+    @Override
+    public LoadEntry execute(UpdateLoadEntryCommand command) {
+        LoadEntry existing = findById(command.id());
+
+        LoadEntry updated = new LoadEntry(
+            existing.id(),
+            existing.user(),
+            existing.exercise(),
+            existing.workout(),
+            command.performedAt(),
+            command.loadKg(),
+            command.warmupLoadKg(),
+            command.sets(),
+            command.reps(),
+            command.notes(),
+            existing.createdAt()
+        );
+
+        return repository.save(updated);
     }
 
     @Override

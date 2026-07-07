@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.gym.exercise.application.port.in.CreateExerciseUseCase;
 import com.backend.gym.exercise.application.port.in.CreateExerciseUseCase.CreateExerciseCommand;
 import com.backend.gym.exercise.application.port.in.GetExerciseUseCase;
+import com.backend.gym.exercise.application.port.in.GetExerciseUseCase.ExerciseFilter;
 import com.backend.gym.exercise.application.port.in.SoftDeleteExerciseUseCase;
 import com.backend.gym.exercise.application.port.in.UpdateExerciseUseCase;
 import com.backend.gym.exercise.application.port.in.UpdateExerciseUseCase.UpdateExerciseCommand;
@@ -81,6 +82,31 @@ public class ExerciseController {
         );
 
         Page<ExerciseWithLoadsResponse> exercises = getExerciseUseCase.findAllByUserWithLoads(userId, pageable)
+            .map(ExerciseWithLoadsResponse::fromDomain);
+
+        return ResponseEntity.ok(exercises);
+    }
+
+    @GetMapping("/filter")
+    @Operation(summary = "Filter exercises", description = "Returns exercises filtered by muscle group and/or user")
+    @ApiResponse(responseCode = "200", description = "List returned successfully")
+    public ResponseEntity<Page<ExerciseWithLoadsResponse>> findAllByFilter(
+            @RequestParam(required = false) UUID userId,
+            @RequestParam(required = false) String muscleGroup,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sort,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        Pageable pageable = PageRequest.of(
+            page, size,
+            direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+            sort
+        );
+
+        ExerciseFilter filter = new ExerciseFilter(userId, muscleGroup);
+
+        Page<ExerciseWithLoadsResponse> exercises = getExerciseUseCase.findAllByFilter(filter, pageable)
             .map(ExerciseWithLoadsResponse::fromDomain);
 
         return ResponseEntity.ok(exercises);

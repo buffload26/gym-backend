@@ -88,6 +88,29 @@ public class ExerciseService implements
     }
 
     @Override
+    public Page<ExerciseWithLoads> findAllByFilter(ExerciseFilter filter, Pageable pageable) {
+        Page<Exercise> exercisePage = repository.findAllByFilter(filter.userId(), filter.muscleGroup(), pageable);
+
+        List<UUID> exerciseIds = exercisePage.getContent().stream()
+            .map(Exercise::id)
+            .toList();
+
+        if (exerciseIds.isEmpty()) {
+            return exercisePage.map(ex -> new ExerciseWithLoads(ex, List.of()));
+        }
+
+        List<LoadEntry> loads = loadEntryRepository.findAllByExerciseIdIn(exerciseIds);
+
+        Map<UUID, List<LoadEntry>> loadsByExerciseId = loads.stream()
+            .collect(Collectors.groupingBy(load -> load.exercise().id()));
+
+        return exercisePage.map(exercise -> {
+            List<LoadEntry> exerciseLoads = loadsByExerciseId.getOrDefault(exercise.id(), List.of());
+            return new ExerciseWithLoads(exercise, exerciseLoads);
+        });
+    }
+
+    @Override
     public Page<ExerciseWithLoads> findAllByUserWithLoads(UUID userId, Pageable pageable) {
         Page<Exercise> exercisePage = repository.findAllByCreatedByUserIdorIsDefault(userId, pageable);
 

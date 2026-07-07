@@ -6,13 +6,11 @@ import java.util.UUID;
 
 import com.backend.gym.loadentry.domain.LoadEntry;
 
-public interface CreateLoadEntryUseCase {
-    LoadEntry execute(CreateLoadEntryCommand command);
+public interface UpdateLoadEntryUseCase {
+    LoadEntry execute(UpdateLoadEntryCommand command);
 
-    record CreateLoadEntryCommand(
-        UUID userId,
-        UUID exerciseId,
-        UUID workoutId,
+    record UpdateLoadEntryCommand(
+        UUID id,
         LocalDate performedAt,
         BigDecimal loadKg,
         BigDecimal warmupLoadKg,

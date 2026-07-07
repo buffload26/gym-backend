@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,9 +22,12 @@ import com.backend.gym.loadentry.application.port.in.CreateLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.CreateLoadEntryUseCase.CreateLoadEntryCommand;
 import com.backend.gym.loadentry.application.port.in.DeleteLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.GetLoadEntryUseCase;
+import com.backend.gym.loadentry.application.port.in.UpdateLoadEntryUseCase;
+import com.backend.gym.loadentry.application.port.in.UpdateLoadEntryUseCase.UpdateLoadEntryCommand;
 import com.backend.gym.loadentry.domain.LoadEntry;
 import com.backend.gym.loadentry.infrastructure.web.dto.CreateLoadEntryRequest;
 import com.backend.gym.loadentry.infrastructure.web.dto.LoadEntryResponse;
+import com.backend.gym.loadentry.infrastructure.web.dto.UpdateLoadEntryRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,6 +43,7 @@ public class LoadEntryController {
 
     private final CreateLoadEntryUseCase registerLoadEntryUseCase;
     private final GetLoadEntryUseCase getLoadEntryUseCase;
+    private final UpdateLoadEntryUseCase updateLoadEntryUseCase;
     private final DeleteLoadEntryUseCase deleteLoadEntryUseCase;
 
     @PostMapping
@@ -50,8 +55,8 @@ public class LoadEntryController {
     public ResponseEntity<LoadEntryResponse> register(@RequestBody CreateLoadEntryRequest request) {
         CreateLoadEntryCommand command = new CreateLoadEntryCommand(
             request.userId(), request.exerciseId(), request.workoutId(),
-            request.performedAt(), request.loadKg(), request.sets(),
-            request.reps(), request.notes()
+            request.performedAt(), request.loadKg(), request.warmupLoadKg(), 
+            request.sets(), request.reps(), request.notes()
         );
         LoadEntry loadEntry = registerLoadEntryUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(LoadEntryResponse.fromDomain(loadEntry));
@@ -110,6 +115,27 @@ public class LoadEntryController {
             .map(LoadEntryResponse::fromDomain);
 
         return ResponseEntity.ok(entries);
+    }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Update load entry", description = "Updates an existing load entry")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Load entry updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Load entry not found")
+    })
+    public ResponseEntity<LoadEntryResponse> update(@PathVariable UUID id,
+                                                    @RequestBody UpdateLoadEntryRequest request) {
+        UpdateLoadEntryCommand command = new UpdateLoadEntryCommand(
+            id,
+            request.performedAt(),
+            request.loadKg(),
+            request.warmupLoadKg(),
+            request.sets(),
+            request.reps(),
+            request.notes()
+        );
+        LoadEntry loadEntry = updateLoadEntryUseCase.execute(command);
+        return ResponseEntity.ok(LoadEntryResponse.fromDomain(loadEntry));
     }
 
     @DeleteMapping("/{id}")

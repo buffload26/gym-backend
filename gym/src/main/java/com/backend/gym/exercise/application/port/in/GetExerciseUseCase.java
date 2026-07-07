@@ -13,4 +13,10 @@ public interface GetExerciseUseCase {
     Page<Exercise> findAll(Pageable pageable);
     Page<Exercise> findAllByUser(UUID userId, Pageable pageable);
     Page<ExerciseWithLoads> findAllByUserWithLoads(UUID userId, Pageable pageable);
+    Page<ExerciseWithLoads> findAllByFilter(ExerciseFilter filter, Pageable pageable);
+
+    record ExerciseFilter(
+        UUID userId,
+        String muscleGroup
+    ) {}
 }
