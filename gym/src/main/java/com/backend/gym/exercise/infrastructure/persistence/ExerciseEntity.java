@@ -50,6 +50,9 @@ public class ExerciseEntity {
     @Column(name = "is_default", nullable = false)
     private boolean isDefault;
 
+    @Column(name = "is_favorite", nullable = false)
+    private boolean isFavorite;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id")
     private UserEntity createdByUser;
@@ -66,7 +69,7 @@ public class ExerciseEntity {
     public Exercise toDomain() {
         return new Exercise(
             id, name, description, muscleGroup,
-            imageUrl, videoUrl, isDefault,
+            imageUrl, videoUrl, isDefault, isFavorite,
             createdByUser != null ? createdByUser.toDomain() : null,
             deletedAt, createdAt, updatedAt
         );
@@ -81,6 +84,7 @@ public class ExerciseEntity {
             .imageUrl(exercise.imageUrl())
             .videoUrl(exercise.videoUrl())
             .isDefault(exercise.isDefault())
+            .isFavorite(exercise.isFavorite())
             .createdByUser(exercise.createdByUser() != null ? UserEntity.fromDomain(exercise.createdByUser()) : null)
             .deletedAt(exercise.deletedAt())
             .createdAt(exercise.createdAt())

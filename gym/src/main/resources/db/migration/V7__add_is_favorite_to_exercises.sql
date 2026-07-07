@@ -1,0 +1,2 @@
+ALTER TABLE exercises
+    ADD COLUMN is_favorite BOOLEAN NOT NULL DEFAULT FALSE;

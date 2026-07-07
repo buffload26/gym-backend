@@ -13,6 +13,7 @@ public record Exercise(
     String imageUrl,
     String videoUrl,
     boolean isDefault,
+    boolean isFavorite,
     User createdByUser,  
     LocalDateTime deletedAt,
     LocalDateTime createdAt,

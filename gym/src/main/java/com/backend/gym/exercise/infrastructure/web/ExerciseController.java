@@ -133,7 +133,7 @@ public class ExerciseController {
                                                    @ModelAttribute UpdateExerciseRequest request) {
         UpdateExerciseCommand command = new UpdateExerciseCommand(
             id, request.name(), request.description(), request.muscleGroup(),
-            request.image(), request.videoUrl()
+            request.image(), request.videoUrl(), request.isFavorite()
         );
         Exercise exercise = updateExerciseUseCase.execute(command);
         return ResponseEntity.ok(ExerciseResponse.fromDomain(exercise));
