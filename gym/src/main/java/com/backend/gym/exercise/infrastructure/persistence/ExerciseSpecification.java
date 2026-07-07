@@ -19,15 +19,7 @@ public class ExerciseSpecification {
     }
 
     public static Specification<ExerciseEntity> byMuscleGroup(String muscleGroup) {
-        return (root, query, cb) -> {
-            if (muscleGroup == null) return null;
-
-            String pattern = "%" + muscleGroup.toLowerCase() + "%";
-
-            return cb.like(
-                cb.lower(root.get("muscleGroup")),
-                cb.literal(pattern)
-            );
-        };
+        return (root, query, cb) -> muscleGroup == null ? null :
+            cb.like(cb.lower(root.get("muscleGroup")), "%" + muscleGroup.toLowerCase() + "%");
     }
 }

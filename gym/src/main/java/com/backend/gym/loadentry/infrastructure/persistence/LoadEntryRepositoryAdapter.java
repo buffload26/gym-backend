@@ -56,6 +56,12 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     }
 
     @Override
+    public Optional<LoadEntry> findLastByExerciseIdAndUserId(UUID exerciseId, UUID userId) {
+        return jpaRepository.findTopByExerciseIdAndUserIdOrderByCreatedAtDesc(exerciseId, userId)
+            .map(LoadEntryEntity::toDomain);
+    }
+
+    @Override
     public List<LoadEntry> findAllByExerciseIdIn(List<UUID> exerciseIds) {
         return jpaRepository.findAllByExerciseIdIn(exerciseIds)
             .stream()

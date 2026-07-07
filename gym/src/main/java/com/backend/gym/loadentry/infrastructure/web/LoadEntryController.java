@@ -55,8 +55,8 @@ public class LoadEntryController {
     public ResponseEntity<LoadEntryResponse> register(@RequestBody CreateLoadEntryRequest request) {
         CreateLoadEntryCommand command = new CreateLoadEntryCommand(
             request.userId(), request.exerciseId(), request.workoutId(),
-            request.performedAt(), request.loadKg(), request.warmupLoadKg(), 
-            request.sets(), request.reps(), request.notes()
+            request.performedAt(), request.loadKg(), request.sets(), 
+            request.reps(), request.notes()
         );
         LoadEntry loadEntry = registerLoadEntryUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(LoadEntryResponse.fromDomain(loadEntry));
@@ -130,6 +130,7 @@ public class LoadEntryController {
             request.performedAt(),
             request.loadKg(),
             request.warmupLoadKg(),
+            request.nextLoadKg(),
             request.sets(),
             request.reps(),
             request.notes()

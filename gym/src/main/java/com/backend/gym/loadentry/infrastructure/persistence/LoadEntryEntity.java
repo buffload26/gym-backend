@@ -57,6 +57,9 @@ public class LoadEntryEntity {
     @Column(name = "warmup_load_kg", precision = 6, scale = 2)
     private BigDecimal warmupLoadKg;
 
+    @Column(name = "next_load_kg", precision = 6, scale = 2)
+    private BigDecimal nextLoadKg;
+
     @Column
     private Integer sets;
 
@@ -77,7 +80,8 @@ public class LoadEntryEntity {
             workout != null ? workout.toDomain() : null,
             performedAt,
             loadKg,
-            warmupLoadKg, 
+            warmupLoadKg,
+            nextLoadKg, 
             sets,
             reps,
             notes,
@@ -97,6 +101,7 @@ public class LoadEntryEntity {
             .performedAt(loadEntry.performedAt())
             .loadKg(loadEntry.loadKg())
             .warmupLoadKg(loadEntry.warmupLoadKg())
+            .nextLoadKg(loadEntry.nextLoadKg())
             .sets(loadEntry.sets())
             .reps(loadEntry.reps())
             .notes(loadEntry.notes())

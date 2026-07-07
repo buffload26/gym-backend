@@ -14,6 +14,7 @@ public interface UpdateLoadEntryUseCase {
         LocalDate performedAt,
         BigDecimal loadKg,
         BigDecimal warmupLoadKg,
+        BigDecimal nextLoadKg,
         Integer sets,
         Integer reps,
         String notes

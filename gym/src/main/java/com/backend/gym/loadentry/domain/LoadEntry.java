@@ -17,6 +17,7 @@ public record LoadEntry(
     LocalDate performedAt,
     BigDecimal loadKg,
     BigDecimal warmupLoadKg,
+    BigDecimal nextLoadKg,
     Integer sets,
     Integer reps,
     String notes,

@@ -1,5 +1,6 @@
 package com.backend.gym.loadentry.application.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -53,6 +54,11 @@ public class LoadEntryService implements
                 .orElseThrow(() -> new WorkoutNotFoundException(command.workoutId()));
         }
 
+        BigDecimal warmupLoadKg = repository
+            .findLastByExerciseIdAndUserId(command.exerciseId(), command.userId())
+            .map(LoadEntry::warmupLoadKg)
+            .orElse(null);
+
         LoadEntry loadEntry = new LoadEntry(
             null,
             user,
@@ -60,7 +66,8 @@ public class LoadEntryService implements
             workout,
             command.performedAt(),
             command.loadKg(),
-            command.warmupLoadKg(),
+            warmupLoadKg,
+            null,
             command.sets(),
             command.reps(),
             command.notes(),
@@ -97,6 +104,7 @@ public class LoadEntryService implements
             command.performedAt(),
             command.loadKg(),
             command.warmupLoadKg(),
+            command.nextLoadKg(),
             command.sets(),
             command.reps(),
             command.notes(),
