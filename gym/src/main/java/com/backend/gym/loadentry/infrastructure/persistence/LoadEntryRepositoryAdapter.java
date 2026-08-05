@@ -1,5 +1,7 @@
 package com.backend.gym.loadentry.infrastructure.persistence;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -70,6 +72,18 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     }
 
     @Override
+    public List<LocalDate> findDistinctPerformedDatesByUserId(UUID userId) {
+        return jpaRepository.findDistinctPerformedDatesByUserId(userId);
+    }
+
+    @Override
+    public List<LoadEntry> findLastFiveByUserId(UUID userId) {
+        return jpaRepository.findLastFiveByUserId(userId).stream()
+            .map(LoadEntryEntity::toDomain)
+            .toList();
+    }
+
+    @Override
     public Page<LoadEntry> findAllByUserId(UUID userId, Pageable pageable) {
         return jpaRepository.findAllByUserId(userId, pageable)
             .map(LoadEntryEntity::toDomain);
@@ -84,5 +98,15 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public int countByUserIdAndMonth(UUID userId, int month, int year) {
+        return jpaRepository.countDistinctExercisesByUserIdAndMonth(userId, month, year);
+    }
+
+    @Override
+    public BigDecimal sumLoadKgByUserIdAndMonth(UUID userId, int month, int year) {
+        return jpaRepository.sumLoadKgByUserIdAndMonth(userId, month, year);
     }
 }

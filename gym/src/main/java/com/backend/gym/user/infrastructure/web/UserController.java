@@ -3,12 +3,15 @@ package com.backend.gym.user.infrastructure.web;
 import com.backend.gym.user.application.port.in.CreateUserUseCase;
 import com.backend.gym.user.application.port.in.CreateUserUseCase.CreateUserCommand;
 import com.backend.gym.user.application.port.in.DeleteUserUseCase;
+import com.backend.gym.user.application.port.in.GetUserDashboardUseCase;
 import com.backend.gym.user.application.port.in.GetUserUseCase;
 import com.backend.gym.user.application.port.in.UpdateUserUseCase;
 import com.backend.gym.user.application.port.in.UpdateUserUseCase.UpdateUserCommand;
 import com.backend.gym.user.domain.User;
+import com.backend.gym.user.domain.UserDashboard;
 import com.backend.gym.user.infrastructure.web.dto.CreateUserRequest;
 import com.backend.gym.user.infrastructure.web.dto.UpdateUserRequest;
+import com.backend.gym.user.infrastructure.web.dto.UserDashboardResponse;
 import com.backend.gym.user.infrastructure.web.dto.UserResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +40,7 @@ public class UserController {
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final DeleteUserUseCase deleteUserUseCase;
+    private final GetUserDashboardUseCase getUserDashboardUseCase;
 
     @PostMapping
     @Operation(summary = "Create user", description = "Creates a new user in the system")
@@ -108,5 +112,16 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         deleteUserUseCase.execute(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/dashboard")
+    @Operation(summary = "Get user dashboard", description = "Returns the user's monthly stats and activity streak")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Dashboard returned successfully"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<UserDashboardResponse> getDashboard(@PathVariable UUID id) {
+        UserDashboard dashboard = getUserDashboardUseCase.execute(id);
+        return ResponseEntity.ok(UserDashboardResponse.fromDomain(dashboard));
     }
 }
