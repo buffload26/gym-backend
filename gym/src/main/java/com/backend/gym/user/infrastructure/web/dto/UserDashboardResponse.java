@@ -2,6 +2,7 @@ package com.backend.gym.user.infrastructure.web.dto;
 
 import com.backend.gym.exercise.domain.Exercise;
 import com.backend.gym.exercise.infrastructure.web.dto.ExerciseResponse;
+import com.backend.gym.exercise.infrastructure.web.dto.ExerciseWithLoadsResponse;
 import com.backend.gym.user.domain.UserDashboard;
 
 import java.math.BigDecimal;
@@ -11,7 +12,7 @@ public record UserDashboardResponse(
     int exercisesThisMonth,
     BigDecimal totalLoadThisMonth,
     int currentStreak,
-    List<ExerciseResponse> lastFiveExercises
+    List<ExerciseWithLoadsResponse> lastFiveExercises 
 ) {
     public static UserDashboardResponse fromDomain(UserDashboard dashboard) {
         return new UserDashboardResponse(
@@ -19,7 +20,7 @@ public record UserDashboardResponse(
             dashboard.totalLoadThisMonth(),
             dashboard.currentStreak(),
             dashboard.lastFiveExercises().stream()
-                .map(ExerciseResponse::fromDomain)
+                .map(ExerciseWithLoadsResponse::fromDomain)
                 .toList()
         );
     }

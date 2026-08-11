@@ -55,7 +55,8 @@ public class WorkoutExerciseController {
     public ResponseEntity<WorkoutExerciseResponse> create(@RequestBody CreateExerciseToWorkoutRequest request) {
         CreateExerciseToWorkoutCommand command = new CreateExerciseToWorkoutCommand(
             request.workoutId(), request.exerciseId(), request.position(),
-            request.targetSets(), request.targetReps(), request.notes()
+            request.targetSets(), request.targetReps(), request.notes(), 
+            request.sortOrder()
         );
         WorkoutExercise workoutExercise = createExerciseToWorkoutUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -84,10 +85,13 @@ public class WorkoutExerciseController {
         @RequestParam(defaultValue = "asc") String direction) {
 
         Pageable pageable = PageRequest.of(
-            page, size,
-            direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
-            sort
-        );
+        page, size,
+        Sort.by(Sort.Direction.ASC, "sortOrder")
+            .and(Sort.by(
+                direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+                sort
+            ))
+    );
 
         Page<WorkoutExerciseResponse> exercises = getWorkoutExerciseUseCase.findAllByWorkout(workoutId, pageable)
             .map(WorkoutExerciseResponse::fromDomain);
@@ -106,7 +110,8 @@ public class WorkoutExerciseController {
         @RequestBody UpdateWorkoutExerciseRequest request) 
     {
         UpdateWorkoutExerciseCommand command = new UpdateWorkoutExerciseCommand(
-            id, request.position(), request.targetSets(), request.targetReps(), request.notes()
+            id, request.position(), request.targetSets(), 
+            request.targetReps(), request.notes(), request.sortOrder()
         );
         WorkoutExercise workoutExercise = updateWorkoutExerciseUseCase.execute(command);
         return ResponseEntity.ok(WorkoutExerciseResponse.fromDomain(workoutExercise));

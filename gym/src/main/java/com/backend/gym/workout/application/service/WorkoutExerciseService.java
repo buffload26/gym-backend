@@ -1,6 +1,9 @@
 package com.backend.gym.workout.application.service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
 import com.backend.gym.exercise.domain.Exercise;
+import com.backend.gym.exercise.domain.ExerciseWithLoads;
+import com.backend.gym.loadentry.application.port.out.LoadEntryRepositoryPort;
+import com.backend.gym.loadentry.domain.LoadEntry;
 import com.backend.gym.shared.exception.exercise.ExerciseNotFoundException;
 import com.backend.gym.shared.exception.exercise.WorkoutExerciseNotFoundException;
 import com.backend.gym.shared.exception.workout.WorkoutNotFoundException;
@@ -33,6 +39,7 @@ public class WorkoutExerciseService implements
     private final WorkoutExerciseRepositoryPort repository;
     private final WorkoutRepositoryPort workoutRepository;
     private final ExerciseRepositoryPort exerciseRepository;
+    private final LoadEntryRepositoryPort loadEntryRepository;
 
     @Override
     public WorkoutExercise execute(CreateExerciseToWorkoutCommand command) {
@@ -45,11 +52,12 @@ public class WorkoutExerciseService implements
         WorkoutExercise workoutExercise = new WorkoutExercise(
             null,
             workout,
-            exercise,
+            new ExerciseWithLoads(exercise, List.of()),
             command.position(),
             command.targetSets(),
             command.targetReps(),
-            command.notes()
+            command.notes(),
+            command.sortOrder()
         );
         return repository.save(workoutExercise);
     }
@@ -62,7 +70,40 @@ public class WorkoutExerciseService implements
 
     @Override
     public Page<WorkoutExercise> findAllByWorkout(UUID workoutId, Pageable pageable) {
-        return repository.findAllByWorkoutId(workoutId, pageable);
+        Page<WorkoutExercise> workoutExercisePage = repository.findAllByWorkoutId(workoutId, pageable);
+
+        List<UUID> exerciseIds = workoutExercisePage.getContent().stream()
+            .map(we -> we.exercise().exercise().id())
+            .toList();
+
+        if (exerciseIds.isEmpty()) {
+            return workoutExercisePage.map(we -> new WorkoutExercise(
+                we.id(), we.workout(),
+                new ExerciseWithLoads(we.exercise().exercise(), List.of()),
+                we.position(), we.targetSets(), we.targetReps(), we.notes(), we.sortOrder()
+            ));
+        }
+
+        List<LoadEntry> loads = loadEntryRepository.findAllByExerciseIdIn(exerciseIds);
+
+        Map<UUID, List<LoadEntry>> loadsByExerciseId = loads.stream()
+            .collect(Collectors.groupingBy(load -> load.exercise().id()));
+
+        return workoutExercisePage.map(we -> {
+            List<LoadEntry> exerciseLoads = loadsByExerciseId
+                .getOrDefault(we.exercise().exercise().id(), List.of());
+
+            return new WorkoutExercise(
+                we.id(),
+                we.workout(),
+                new ExerciseWithLoads(we.exercise().exercise(), exerciseLoads),
+                we.position(),
+                we.targetSets(),
+                we.targetReps(),
+                we.notes(),
+                we.sortOrder()
+            );
+        });
     }
 
     @Override
@@ -75,7 +116,8 @@ public class WorkoutExerciseService implements
             command.position(),
             command.targetSets(),
             command.targetReps(),
-            command.notes()
+            command.notes(),
+            command.sortOrder()
         );
         return repository.save(updated);
     }

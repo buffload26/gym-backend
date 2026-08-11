@@ -1,6 +1,6 @@
 package com.backend.gym.user.application.service;
 
-import com.backend.gym.exercise.domain.Exercise;
+import com.backend.gym.exercise.domain.ExerciseWithLoads;
 import com.backend.gym.loadentry.application.port.out.LoadEntryRepositoryPort;
 import com.backend.gym.loadentry.domain.LoadEntry;
 import com.backend.gym.user.application.port.in.GetUserDashboardUseCase;
@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,11 +37,19 @@ public class UserDashboardService implements GetUserDashboardUseCase {
             loadEntryRepository.findDistinctPerformedDatesByUserId(userId)
         );
 
-        List<Exercise> lastFiveExercises = loadEntryRepository
-            .findLastFiveByUserId(userId).stream()
+        List<LoadEntry> lastFiveLoadEntries = loadEntryRepository.findLastFiveByUserId(userId);
+
+        Map<UUID, List<LoadEntry>> loadsByExerciseId = lastFiveLoadEntries.stream()
+            .collect(Collectors.groupingBy(load -> load.exercise().id()));
+
+        List<ExerciseWithLoads> lastFiveExercises = lastFiveLoadEntries.stream()
             .map(LoadEntry::exercise)
             .distinct()
             .limit(5)
+            .map(exercise -> new ExerciseWithLoads(
+                exercise,
+                loadsByExerciseId.getOrDefault(exercise.id(), List.of())
+            ))
             .toList();
 
         return new UserDashboard(

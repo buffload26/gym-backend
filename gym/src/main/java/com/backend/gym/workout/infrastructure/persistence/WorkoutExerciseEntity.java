@@ -1,7 +1,9 @@
 package com.backend.gym.workout.infrastructure.persistence;
 
+import java.util.List;
 import java.util.UUID;
 
+import com.backend.gym.exercise.domain.ExerciseWithLoads;
 import com.backend.gym.exercise.infrastructure.persistence.ExerciseEntity;
 import com.backend.gym.workout.domain.WorkoutExercise;
 
@@ -51,22 +53,33 @@ public class WorkoutExerciseEntity {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Builder.Default
+    @Column(name = "sort_order", nullable = false)
+    private Integer sortOrder = 0;
+
     public WorkoutExercise toDomain() {
-    return new WorkoutExercise(
-        id, workout.toDomain(), exercise.toDomain(),
-        position, targetSets, targetReps, notes
-    );
-}
+        return new WorkoutExercise(
+            id,
+            workout.toDomain(),
+            new ExerciseWithLoads(exercise.toDomain(), List.of()),
+            position,
+            targetSets,
+            targetReps,
+            notes,
+            sortOrder
+        );
+    }
 
     public static WorkoutExerciseEntity fromDomain(WorkoutExercise workoutExercise) {
         return WorkoutExerciseEntity.builder()
             .id(workoutExercise.id())
             .workout(WorkoutEntity.fromDomain(workoutExercise.workout()))
-            .exercise(ExerciseEntity.fromDomain(workoutExercise.exercise()))
+            .exercise(ExerciseEntity.fromDomain(workoutExercise.exercise().exercise()))
             .position(workoutExercise.position())
             .targetSets(workoutExercise.targetSets())
             .targetReps(workoutExercise.targetReps())
             .notes(workoutExercise.notes())
+            .sortOrder(workoutExercise.sortOrder())
             .build();
     }
 }

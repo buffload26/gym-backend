@@ -8,5 +8,6 @@ public record CreateExerciseToWorkoutRequest(
     Integer position,
     Integer targetSets,
     String targetReps,
-    String notes
+    String notes,
+    Integer sortOrder
 ) {}
