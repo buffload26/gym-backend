@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +23,8 @@ import com.backend.gym.workout.application.port.in.CreateExerciseToWorkoutUseCas
 import com.backend.gym.workout.application.port.in.CreateExerciseToWorkoutUseCase.CreateExerciseToWorkoutCommand;
 import com.backend.gym.workout.application.port.in.DeleteExerciseFromWorkoutUseCase;
 import com.backend.gym.workout.application.port.in.GetWorkoutExerciseUseCase;
+import com.backend.gym.workout.application.port.in.ReorderWorkoutExerciseUseCase;
+import com.backend.gym.workout.application.port.in.ReorderWorkoutExerciseUseCase.ReorderWorkoutExerciseCommand;
 import com.backend.gym.workout.application.port.in.UpdateWorkoutExerciseUseCase;
 import com.backend.gym.workout.application.port.in.UpdateWorkoutExerciseUseCase.UpdateWorkoutExerciseCommand;
 import com.backend.gym.workout.domain.WorkoutExercise;
@@ -44,6 +47,7 @@ public class WorkoutExerciseController {
     private final CreateExerciseToWorkoutUseCase createExerciseToWorkoutUseCase;
     private final GetWorkoutExerciseUseCase getWorkoutExerciseUseCase;
     private final UpdateWorkoutExerciseUseCase updateWorkoutExerciseUseCase;
+    private final ReorderWorkoutExerciseUseCase reorderWorkoutExerciseUseCase;
     private final DeleteExerciseFromWorkoutUseCase deleteExerciseFromWorkoutUseCase;
 
     @PostMapping
@@ -115,6 +119,18 @@ public class WorkoutExerciseController {
         );
         WorkoutExercise workoutExercise = updateWorkoutExerciseUseCase.execute(command);
         return ResponseEntity.ok(WorkoutExerciseResponse.fromDomain(workoutExercise));
+    }
+
+    @PatchMapping("/{id}/reorder")
+    @Operation(summary = "Reorder workout exercise", description = "Changes the sort order of an exercise in a workout")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Reordered successfully"),
+        @ApiResponse(responseCode = "404", description = "Workout exercise not found")
+    })
+    public ResponseEntity<Void> reorder(@PathVariable UUID id,
+                                        @RequestParam int newSortOrder) {
+        reorderWorkoutExerciseUseCase.execute(new ReorderWorkoutExerciseCommand(id, newSortOrder));
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

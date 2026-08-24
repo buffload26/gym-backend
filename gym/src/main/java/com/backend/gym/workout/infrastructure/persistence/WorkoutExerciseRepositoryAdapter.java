@@ -1,5 +1,6 @@
 package com.backend.gym.workout.infrastructure.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +27,13 @@ public class WorkoutExerciseRepositoryAdapter implements WorkoutExerciseReposito
     @Override
     public Optional<WorkoutExercise> findById(UUID id) {
         return jpaRepository.findById(id).map(WorkoutExerciseEntity::toDomain);
+    }
+
+    @Override
+    public List<WorkoutExercise> findAllByWorkoutIdOrdered(UUID workoutId) {
+        return jpaRepository.findAllByWorkoutIdOrderBySortOrderAsc(workoutId).stream()
+            .map(WorkoutExerciseEntity::toDomain)
+            .toList();
     }
 
     @Override

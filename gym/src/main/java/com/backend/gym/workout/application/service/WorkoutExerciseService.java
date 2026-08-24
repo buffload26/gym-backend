@@ -20,6 +20,7 @@ import com.backend.gym.shared.exception.workout.WorkoutNotFoundException;
 import com.backend.gym.workout.application.port.in.CreateExerciseToWorkoutUseCase;
 import com.backend.gym.workout.application.port.in.DeleteExerciseFromWorkoutUseCase;
 import com.backend.gym.workout.application.port.in.GetWorkoutExerciseUseCase;
+import com.backend.gym.workout.application.port.in.ReorderWorkoutExerciseUseCase;
 import com.backend.gym.workout.application.port.in.UpdateWorkoutExerciseUseCase;
 import com.backend.gym.workout.application.port.out.WorkoutExerciseRepositoryPort;
 import com.backend.gym.workout.application.port.out.WorkoutRepositoryPort;
@@ -34,6 +35,7 @@ public class WorkoutExerciseService implements
         CreateExerciseToWorkoutUseCase,
         GetWorkoutExerciseUseCase,
         UpdateWorkoutExerciseUseCase,
+        ReorderWorkoutExerciseUseCase,
         DeleteExerciseFromWorkoutUseCase {
 
     private final WorkoutExerciseRepositoryPort repository;
@@ -120,6 +122,50 @@ public class WorkoutExerciseService implements
             command.sortOrder()
         );
         return repository.save(updated);
+    }
+
+    @Override
+    public void execute(ReorderWorkoutExerciseCommand command) {
+        WorkoutExercise existing = findById(command.workoutExerciseId());
+
+        int oldOrder = existing.sortOrder();
+        int newOrder = command.newSortOrder();
+
+        if (oldOrder == newOrder) return;
+
+        List<WorkoutExercise> allExercises = repository
+            .findAllByWorkoutIdOrdered(existing.workout().id());
+
+        for (WorkoutExercise we : allExercises) {
+            if (we.id().equals(command.workoutExerciseId())) continue;
+
+            int currentOrder = we.sortOrder();
+            int adjustedOrder = currentOrder;
+
+            if (newOrder < oldOrder) {
+                if (currentOrder >= newOrder && currentOrder < oldOrder) {
+                    adjustedOrder = currentOrder + 1;
+                }
+            } else {
+                if (currentOrder > oldOrder && currentOrder <= newOrder) {
+                    adjustedOrder = currentOrder - 1;
+                }
+            }
+
+            if (adjustedOrder != currentOrder) {
+                repository.save(new WorkoutExercise(
+                    we.id(), we.workout(), we.exercise(),
+                    we.position(), we.targetSets(), we.targetReps(), 
+                    we.notes(), adjustedOrder
+                ));
+            }
+        }
+
+        repository.save(new WorkoutExercise(
+            existing.id(), existing.workout(), existing.exercise(),
+            existing.position(), existing.targetSets(), existing.targetReps(), 
+            existing.notes(), newOrder
+        ));
     }
 
     @Override

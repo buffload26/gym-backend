@@ -1,7 +1,5 @@
 package com.backend.gym.user.infrastructure.web.dto;
 
-import com.backend.gym.exercise.domain.Exercise;
-import com.backend.gym.exercise.infrastructure.web.dto.ExerciseResponse;
 import com.backend.gym.exercise.infrastructure.web.dto.ExerciseWithLoadsResponse;
 import com.backend.gym.user.domain.UserDashboard;
 
