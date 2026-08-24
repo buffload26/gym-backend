@@ -1,5 +1,7 @@
 package com.backend.gym.user.application.service;
 
+import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
+import com.backend.gym.exercise.domain.Exercise;
 import com.backend.gym.exercise.domain.ExerciseWithLoads;
 import com.backend.gym.loadentry.application.port.out.LoadEntryRepositoryPort;
 import com.backend.gym.loadentry.domain.LoadEntry;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class UserDashboardService implements GetUserDashboardUseCase {
 
     private final LoadEntryRepositoryPort loadEntryRepository;
+    private final ExerciseRepositoryPort exerciseRepository;
 
     @Override
     public UserDashboard execute(UUID userId) {
@@ -51,12 +54,15 @@ public class UserDashboardService implements GetUserDashboardUseCase {
                 loadsByExerciseId.getOrDefault(exercise.id(), List.of())
             ))
             .toList();
+        
+        List<Exercise> favoriteExercises = exerciseRepository.findFavoritesByUserId(userId);
 
         return new UserDashboard(
             exercisesThisMonth,
             totalLoadThisMonth,
             currentStreak,
-            lastFiveExercises
+            lastFiveExercises,
+            favoriteExercises
         );
     }
 
