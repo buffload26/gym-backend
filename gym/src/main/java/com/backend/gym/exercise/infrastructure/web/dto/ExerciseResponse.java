@@ -14,7 +14,6 @@ public record ExerciseResponse(
     String imageUrl,
     String videoUrl,
     boolean isDefault,
-    boolean isFavorite,
     UserResponse createdByUser,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
@@ -28,7 +27,6 @@ public record ExerciseResponse(
             exercise.imageUrl(),
             exercise.videoUrl(),
             exercise.isDefault(),
-            exercise.isFavorite(),
             exercise.createdByUser() != null ? UserResponse.fromDomain(exercise.createdByUser()) : null,
             exercise.createdAt(),
             exercise.updatedAt()

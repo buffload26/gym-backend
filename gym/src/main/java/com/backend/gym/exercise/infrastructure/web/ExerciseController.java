@@ -24,6 +24,8 @@ import com.backend.gym.exercise.application.port.in.CreateExerciseUseCase.Create
 import com.backend.gym.exercise.application.port.in.GetExerciseUseCase;
 import com.backend.gym.exercise.application.port.in.GetExerciseUseCase.ExerciseFilter;
 import com.backend.gym.exercise.application.port.in.SoftDeleteExerciseUseCase;
+import com.backend.gym.exercise.application.port.in.ToggleExerciseFavoriteUseCase;
+import com.backend.gym.exercise.application.port.in.ToggleExerciseFavoriteUseCase.ToggleExerciseFavoriteCommand;
 import com.backend.gym.exercise.application.port.in.UpdateExerciseUseCase;
 import com.backend.gym.exercise.application.port.in.UpdateExerciseUseCase.UpdateExerciseCommand;
 import com.backend.gym.exercise.domain.Exercise;
@@ -47,6 +49,8 @@ public class ExerciseController {
     private final CreateExerciseUseCase createExerciseUseCase;
     private final GetExerciseUseCase getExerciseUseCase;
     private final UpdateExerciseUseCase updateExerciseUseCase;
+    private final ToggleExerciseFavoriteUseCase toggleExerciseFavoriteUseCase;
+
     private final SoftDeleteExerciseUseCase softDeleteExerciseUseCase;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -133,10 +137,23 @@ public class ExerciseController {
                                                    @ModelAttribute UpdateExerciseRequest request) {
         UpdateExerciseCommand command = new UpdateExerciseCommand(
             id, request.name(), request.description(), request.muscleGroup(),
-            request.image(), request.videoUrl(), request.isFavorite()
+            request.image(), request.videoUrl()
         );
         Exercise exercise = updateExerciseUseCase.execute(command);
         return ResponseEntity.ok(ExerciseResponse.fromDomain(exercise));
+    }
+
+    @PostMapping("/{exerciseId}/favorite")
+    @Operation(summary = "Toggle favorite", description = "Adds or removes an exercise from favorites")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Favorite toggled successfully"),
+        @ApiResponse(responseCode = "404", description = "Exercise or user not found")
+    })
+    public ResponseEntity<Void> toggleFavorite(
+            @PathVariable UUID exerciseId,
+            @RequestParam UUID userId) {
+        toggleExerciseFavoriteUseCase.execute(new ToggleExerciseFavoriteCommand(userId, exerciseId));
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

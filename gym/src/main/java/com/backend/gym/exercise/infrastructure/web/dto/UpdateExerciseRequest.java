@@ -7,6 +7,5 @@ public record UpdateExerciseRequest(
     String description,
     String muscleGroup,
     MultipartFile image,
-    String videoUrl,
-    Boolean isFavorite
+    String videoUrl
 ) {}

@@ -15,7 +15,6 @@ public interface UpdateExerciseUseCase {
         String description,
         String muscleGroup,
         MultipartFile image,
-        String videoUrl,
-        Boolean isFavorite
+        String videoUrl
     ) {}
 }
