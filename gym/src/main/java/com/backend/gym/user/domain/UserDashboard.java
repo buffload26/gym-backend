@@ -1,6 +1,5 @@
 package com.backend.gym.user.domain;
 
-import com.backend.gym.exercise.domain.Exercise;
 import com.backend.gym.exercise.domain.ExerciseWithLoads;
 
 import java.math.BigDecimal;
@@ -11,5 +10,5 @@ public record UserDashboard(
     BigDecimal totalLoadThisMonth,
     int currentStreak,
     List<ExerciseWithLoads> lastFiveExercises,
-    List<Exercise> favoriteExercises
+    List<ExerciseWithLoads> favoriteExercises
 ) {}
