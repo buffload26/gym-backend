@@ -56,8 +56,26 @@ public class UserDashboardService implements GetUserDashboardUseCase {
             ))
             .toList();
         
-        List<Exercise> favoriteExercises = exerciseFavoriteRepository.findAllByUserId(userId)
+        List<Exercise> favoriteExerciseList = exerciseFavoriteRepository.findAllByUserId(userId)
                                             .stream().map(ExerciseFavorite::exercise).toList();
+        
+        List<UUID> favoriteExerciseIds = favoriteExerciseList.stream()
+            .map(Exercise::id)
+            .toList();
+
+        List<LoadEntry> favoriteLoads = favoriteExerciseIds.isEmpty()
+            ? List.of()
+            : loadEntryRepository.findAllByExerciseIdIn(favoriteExerciseIds);
+
+        Map<UUID, List<LoadEntry>> favoriteLoadsByExerciseId = favoriteLoads.stream()
+            .collect(Collectors.groupingBy(load -> load.exercise().id()));
+
+        List<ExerciseWithLoads> favoriteExercises = favoriteExerciseList.stream()
+            .map(exercise -> new ExerciseWithLoads(
+                exercise,
+                favoriteLoadsByExerciseId.getOrDefault(exercise.id(), List.of()) 
+            ))
+            .toList();
 
         return new UserDashboard(
             exercisesThisMonth,
