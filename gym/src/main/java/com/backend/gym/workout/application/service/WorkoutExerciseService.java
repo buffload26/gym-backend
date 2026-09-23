@@ -170,7 +170,22 @@ public class WorkoutExerciseService implements
 
     @Override
     public void execute(UUID id) {
-        findById(id);
+        WorkoutExercise existing = findById(id);
+        int deletedOrder = existing.sortOrder();
+
         repository.deleteById(id);
+
+        List<WorkoutExercise> allExercises = repository
+            .findAllByWorkoutIdOrdered(existing.workout().id());
+
+        for (WorkoutExercise we : allExercises) {
+            if (we.sortOrder() > deletedOrder) {
+                repository.save(new WorkoutExercise(
+                    we.id(), we.workout(), we.exercise(),
+                    we.position(), we.targetSets(), we.targetReps(),
+                    we.notes(), we.sortOrder() - 1
+                ));
+            }
+        }
     }
 }
