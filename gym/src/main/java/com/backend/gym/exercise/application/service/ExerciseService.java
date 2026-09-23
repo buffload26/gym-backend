@@ -88,6 +88,11 @@ public class ExerciseService implements
     }
 
     @Override
+    public Page<Exercise> findFavoritesByUser(UUID userId, Pageable pageable) {
+        return repository.findFavoritesByUserId(userId, pageable);
+    }
+
+    @Override
     public Page<ExerciseWithLoads> findAllByFilter(ExerciseFilter filter, Pageable pageable) {
         Page<Exercise> exercisePage = repository.findAllByFilter(filter.userId(), filter.muscleGroup(), pageable);
 

@@ -1,5 +1,6 @@
 package com.backend.gym.workout.infrastructure.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +27,13 @@ public class WorkoutRepositoryAdapter implements WorkoutRepositoryPort {
     @Override
     public Optional<Workout> findById(UUID id) {
         return jpaRepository.findById(id).map(WorkoutEntity::toDomain);
+    }
+
+    @Override
+    public List<Workout> findAllByUserIdOrdered(UUID userId) {
+        return jpaRepository.findAllByUserIdOrderBySortOrderAsc(userId).stream()
+            .map(WorkoutEntity::toDomain)
+            .toList();
     }
 
     @Override

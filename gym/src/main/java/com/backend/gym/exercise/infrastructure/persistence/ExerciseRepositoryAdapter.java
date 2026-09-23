@@ -42,6 +42,11 @@ public class ExerciseRepositoryAdapter implements ExerciseRepositoryPort {
     }
 
     @Override
+    public Page<Exercise> findFavoritesByUserId(UUID userId, Pageable pageable) {
+        return jpaRepository.findFavoritesByUserId(userId, pageable).map(ExerciseEntity::toDomain);
+    }
+
+    @Override
     public Page<Exercise> findAllByFilter(UUID userId, String muscleGroup, Pageable pageable) {
         Specification<ExerciseEntity> spec = Specification
             .where(ExerciseSpecification.isNotDeleted())

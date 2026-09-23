@@ -12,12 +12,13 @@ import org.springframework.data.repository.query.Param;
 
 public interface ExerciseJpaRepository extends JpaRepository<ExerciseEntity, UUID>, JpaSpecificationExecutor<ExerciseEntity> {
     @Query(value = """
-        SELECT * FROM exercises e
-        WHERE e.deleted_at IS NULL
-        AND e.is_favorite = true
-        AND e.created_by_user_id = :userId
-        """, nativeQuery = true)
-    List<ExerciseEntity> findFavoritesByUserId(@Param("userId") UUID userId);
+        SELECT e
+        FROM ExerciseEntity e
+        INNER JOIN ExerciseFavoriteEntity ef
+            ON ef.exercise.id = e.id
+        WHERE ef.user.id = :userId
+        """)
+    Page<ExerciseEntity> findFavoritesByUserId(@Param("userId") UUID userId, Pageable pageable);
     Page<ExerciseEntity> findAllByDeletedAtIsNull(Pageable pageable);
     @Query("SELECT e FROM ExerciseEntity e WHERE (e.createdByUser.id = :userId OR e.isDefault = true) AND e.deletedAt IS NULL")
     Page<ExerciseEntity> findAllByCreatedByUserIdOrIsDefaultAndDeletedAtIsNull(UUID userId, Pageable pageable);

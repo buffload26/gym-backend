@@ -13,5 +13,6 @@ public interface ExerciseRepositoryPort {
     Optional<Exercise> findById(UUID id);
     Page<Exercise> findAllActive(Pageable pageable);
     Page<Exercise> findAllByCreatedByUserIdorIsDefault(UUID userId, Pageable pageable);
+    Page<Exercise> findFavoritesByUserId(UUID userId, Pageable pageable);
     Page<Exercise> findAllByFilter(UUID userId, String muscleGroup, Pageable pageable);
 }

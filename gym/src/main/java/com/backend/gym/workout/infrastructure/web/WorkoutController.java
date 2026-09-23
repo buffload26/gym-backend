@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +23,8 @@ import com.backend.gym.workout.application.port.in.CreateWorkoutUseCase;
 import com.backend.gym.workout.application.port.in.CreateWorkoutUseCase.CreateWorkoutCommand;
 import com.backend.gym.workout.application.port.in.DeleteWorkoutUseCase;
 import com.backend.gym.workout.application.port.in.GetWorkoutUseCase;
+import com.backend.gym.workout.application.port.in.ReorderWorkoutUseCase;
+import com.backend.gym.workout.application.port.in.ReorderWorkoutUseCase.ReorderWorkoutCommand;
 import com.backend.gym.workout.application.port.in.UpdateWorkoutUseCase;
 import com.backend.gym.workout.application.port.in.UpdateWorkoutUseCase.UpdateWorkoutCommand;
 import com.backend.gym.workout.domain.Workout;
@@ -44,6 +47,7 @@ public class WorkoutController {
     private final CreateWorkoutUseCase createWorkoutUseCase;
     private final GetWorkoutUseCase getWorkoutUseCase;
     private final UpdateWorkoutUseCase updateWorkoutUseCase;
+    private final ReorderWorkoutUseCase reorderWorkoutUseCase;
     private final DeleteWorkoutUseCase deleteWorkoutUseCase;
 
     @PostMapping
@@ -104,6 +108,18 @@ public class WorkoutController {
         UpdateWorkoutCommand command = new UpdateWorkoutCommand(id, request.name(), request.description(), request.imageUrl());
         Workout workout = updateWorkoutUseCase.execute(command);
         return ResponseEntity.ok(WorkoutResponse.fromDomain(workout));
+    }
+
+    @PatchMapping("/{id}/reorder")
+    @Operation(summary = "Reorder workout", description = "Changes the sort order of a workout")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Reordered successfully"),
+        @ApiResponse(responseCode = "404", description = "Workout not found")
+    })
+    public ResponseEntity<Void> reorder(@PathVariable UUID id,
+                                        @RequestParam int newSortOrder) {
+        reorderWorkoutUseCase.execute(new ReorderWorkoutCommand(id, newSortOrder));
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

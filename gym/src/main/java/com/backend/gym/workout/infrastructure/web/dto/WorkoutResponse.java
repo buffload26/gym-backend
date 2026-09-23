@@ -11,14 +11,21 @@ public record WorkoutResponse(
     UserResponse user,
     String name,
     String description,
+    Integer sortOrder,
     String imageUrl,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
     public static WorkoutResponse fromDomain(Workout workout) {
         return new WorkoutResponse(
-            workout.id(), UserResponse.fromDomain(workout.user()), workout.name(),
-            workout.description(), workout.imageUrl(), workout.createdAt(), workout.updatedAt()
+            workout.id(),
+            UserResponse.fromDomain(workout.user()),
+            workout.name(),
+            workout.description(),
+            workout.sortOrder(),
+            workout.imageUrl(),
+            workout.createdAt(),
+            workout.updatedAt()
         );
     }
 }

@@ -91,6 +91,38 @@ public class ExerciseController {
         return ResponseEntity.ok(exercises);
     }
 
+    @GetMapping("/favorites/user/{userId}")
+    @Operation(
+        summary = "List favorite exercises by user",
+        description = "Returns all exercises favorited by a specific user"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "List returned successfully"
+    )
+    public ResponseEntity<Page<ExerciseResponse>> findFavoritesByUser(
+        @PathVariable UUID userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "name") String sort,
+        @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Pageable pageable = PageRequest.of(
+            page,
+            size,
+            direction.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC,
+            sort
+        );
+
+        Page<ExerciseResponse> exercises = getExerciseUseCase
+            .findFavoritesByUser(userId, pageable)
+            .map(ExerciseResponse::fromDomain);
+
+        return ResponseEntity.ok(exercises);
+    }
+
     @GetMapping("/filter")
     @Operation(summary = "Filter exercises", description = "Returns exercises filtered by muscle group and/or user")
     @ApiResponse(responseCode = "200", description = "List returned successfully")
