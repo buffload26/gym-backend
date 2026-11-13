@@ -1,0 +1,226 @@
+
+package com.backend.gym.competition.application.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.backend.gym.competition.application.port.in.DeleteCompetitionUseCase;
+import com.backend.gym.competition.application.port.in.FinishCompetitionUseCase;
+import com.backend.gym.competition.application.port.in.CreateCompetitionUseCase;
+import com.backend.gym.competition.application.port.in.GetCompetitionUseCase;
+import com.backend.gym.competition.application.port.in.UpdateCompetitionUseCase;
+import com.backend.gym.competition.application.port.out.CompetitionParticipantRepositoryPort;
+import com.backend.gym.competition.application.port.out.CompetitionRepositoryPort;
+import com.backend.gym.competition.domain.Competition;
+import com.backend.gym.competition.domain.CompetitionParticipant;
+import com.backend.gym.competition.domain.CompetitionStatus;
+import com.backend.gym.competition.domain.CompetitionWithParticipants;
+import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
+import com.backend.gym.exercise.domain.Exercise;
+import com.backend.gym.shared.exception.competition.CompetitionNotFoundException;
+import com.backend.gym.shared.exception.exercise.ExerciseNotFoundException;
+import com.backend.gym.shared.exception.user.UserNotFoundException;
+import com.backend.gym.storage.application.port.out.FileStoragePort;
+import com.backend.gym.user.application.port.out.UserRepositoryPort;
+import com.backend.gym.user.domain.User;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class CompetitionService implements
+        CreateCompetitionUseCase,
+        GetCompetitionUseCase,
+        UpdateCompetitionUseCase,
+        DeleteCompetitionUseCase,
+        FinishCompetitionUseCase {
+
+    private final CompetitionRepositoryPort repository;
+    private final ExerciseRepositoryPort exerciseRepository;
+    private final UserRepositoryPort userRepository;
+    private final CompetitionParticipantRepositoryPort participantRepository;
+    private final FileStoragePort fileStoragePort;
+
+    @Override
+    @Transactional
+    public Competition execute(CreateCompetitionCommand command) {
+        validateDates(command.startAt(), command.endAt());
+
+        Exercise exercise = exerciseRepository.findById(command.exerciseId())
+            .orElseThrow(() -> new ExerciseNotFoundException(command.exerciseId()));
+
+        User createdByUser = null;
+
+        if (command.createdByUserId() != null) {
+            createdByUser = userRepository.findById(command.createdByUserId())
+                .orElseThrow(() -> new UserNotFoundException(command.createdByUserId()));
+        }
+
+        String imageUrl = null;
+
+        if (command.image() != null && !command.image().isEmpty()) {
+            imageUrl = fileStoragePort.upload(command.image());
+        }
+
+        Competition competition = new Competition(
+            null,
+            command.title(),
+            command.description(),
+            command.rules(),
+            imageUrl,
+            exercise,
+            createdByUser,
+            CompetitionStatus.ACTIVE,
+            command.startAt(),
+            command.endAt(),
+            null,
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        );
+
+        return repository.save(competition);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Competition findById(UUID id) {
+        return repository.findById(id)
+            .orElseThrow(() -> new CompetitionNotFoundException(id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CompetitionWithParticipants findByIdWithParticipants(UUID id) {
+        Competition competition = findById(id);
+
+        List<User> participants =
+            participantRepository.findAllByCompetitionId(id).stream().map(CompetitionParticipant::user).toList();
+
+        return new CompetitionWithParticipants(competition, participants);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Competition> findAll(Pageable pageable) {
+        return repository.findAllActive(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Competition> findAllByFilter(
+            CompetitionFilter filter,
+            Pageable pageable) {
+
+        return repository.findAllByFilter(
+            filter.userId(),
+            filter.exerciseId(),
+            filter.status(),
+            pageable
+        );
+    }
+
+    @Override
+    @Transactional
+    public Competition execute(UpdateCompetitionCommand command) {
+        Competition existing = findById(command.id());
+
+        validateDates(command.startAt(), command.endAt());
+
+        String newImageUrl = existing.imageUrl();
+
+        if (command.image() != null && !command.image().isEmpty()) {
+            newImageUrl = fileStoragePort.replaceFile(
+                command.image(),
+                existing.imageUrl()
+            );
+        }
+
+        Competition updated = new Competition(
+            existing.id(),
+            command.title(),
+            command.description(),
+            command.rules(),
+            newImageUrl,
+            existing.exercise(),
+            existing.createdByUser(),
+            existing.status(),
+            command.startAt(),
+            command.endAt(),
+            existing.deletedAt(),
+            existing.createdAt(),
+            LocalDateTime.now()
+        );
+
+        return repository.save(updated);
+    }
+
+    @Override
+    @Transactional
+    public void execute(UUID id) {
+        Competition existing = findById(id);
+
+        Competition deleted = new Competition(
+            existing.id(),
+            existing.title(),
+            existing.description(),
+            existing.rules(),
+            existing.imageUrl(),
+            existing.exercise(),
+            existing.createdByUser(),
+            existing.status(),
+            existing.startAt(),
+            existing.endAt(),
+            LocalDateTime.now(),
+            existing.createdAt(),
+            LocalDateTime.now()
+        );
+
+        repository.save(deleted);
+    }
+
+    @Override
+    @Transactional
+    public Competition finish(UUID id) {
+        Competition existing = findById(id);
+
+        if (existing.status() == CompetitionStatus.FINISHED) {
+            throw new IllegalStateException("Competition is already finished");
+        }
+
+        Competition finished = new Competition(
+            existing.id(),
+            existing.title(),
+            existing.description(),
+            existing.rules(),
+            existing.imageUrl(),
+            existing.exercise(),
+            existing.createdByUser(),
+            CompetitionStatus.FINISHED,
+            existing.startAt(),
+            existing.endAt(),
+            existing.deletedAt(),
+            existing.createdAt(),
+            LocalDateTime.now()
+        );
+
+        return repository.save(finished);
+    }
+
+    private void validateDates(LocalDateTime startAt, LocalDateTime endAt) {
+        if (startAt == null) {
+            throw new IllegalArgumentException("Competition start date is required");
+        }
+
+        if (endAt != null && !endAt.isAfter(startAt)) {
+            throw new IllegalArgumentException(
+                "Competition end date must be after start date"
+            );
+        }
+    }
+}

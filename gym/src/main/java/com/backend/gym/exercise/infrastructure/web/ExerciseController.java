@@ -50,7 +50,6 @@ public class ExerciseController {
     private final GetExerciseUseCase getExerciseUseCase;
     private final UpdateExerciseUseCase updateExerciseUseCase;
     private final ToggleExerciseFavoriteUseCase toggleExerciseFavoriteUseCase;
-
     private final SoftDeleteExerciseUseCase softDeleteExerciseUseCase;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
