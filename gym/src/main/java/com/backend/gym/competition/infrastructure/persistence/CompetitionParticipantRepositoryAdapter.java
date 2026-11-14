@@ -1,7 +1,9 @@
 package com.backend.gym.competition.infrastructure.persistence;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -40,5 +42,24 @@ public class CompetitionParticipantRepositoryAdapter
     @Override
     public void deleteByCompetitionIdAndUserId(UUID competitionId, UUID userId) {
         jpaRepository.deleteByCompetitionIdAndUserId(competitionId, userId);
+    }
+
+    @Override
+    public long countByCompetitionId(UUID competitionId) {
+        return jpaRepository.countByCompetitionId(competitionId);
+    }
+
+    @Override
+    public Map<UUID, Long> countByCompetitionIds(List<UUID> competitionIds) {
+        if (competitionIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return jpaRepository.countByCompetitionIds(competitionIds)
+            .stream()
+            .collect(Collectors.toMap(
+                CompetitionParticipantCountProjection::competitionId,
+                CompetitionParticipantCountProjection::count
+            ));
     }
 }

@@ -26,7 +26,6 @@ import com.backend.gym.competition.application.port.in.CreateCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.CreateCompetitionUseCase.CreateCompetitionCommand;
 import com.backend.gym.competition.application.port.in.DeleteCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.FinishCompetitionUseCase;
-import com.backend.gym.competition.application.port.in.GetCompetitionParticipantUseCase;
 import com.backend.gym.competition.application.port.in.GetCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.GetCompetitionUseCase.CompetitionFilter;
 import com.backend.gym.competition.application.port.in.JoinCompetitionParticipantUseCase;
@@ -111,7 +110,7 @@ public class CompetitionController {
 
         Page<CompetitionResponse> competitions = getCompetitionUseCase
             .findAll(pageable)
-            .map(CompetitionResponse::fromDomain);
+            .map(c -> CompetitionResponse.fromDomain(c.competition(), c.participantCount()));
 
         return ResponseEntity.ok(competitions);
     }
@@ -148,7 +147,7 @@ public class CompetitionController {
 
         Page<CompetitionResponse> competitions = getCompetitionUseCase
             .findAllByFilter(filter, pageable)
-            .map(CompetitionResponse::fromDomain);
+            .map(c -> CompetitionResponse.fromDomain(c.competition(), c.participantCount()));
 
         return ResponseEntity.ok(competitions);
     }

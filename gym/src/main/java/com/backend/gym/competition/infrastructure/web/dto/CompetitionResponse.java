@@ -20,9 +20,14 @@ public record CompetitionResponse(
     LocalDateTime startAt,
     LocalDateTime endAt,
     LocalDateTime createdAt,
-    LocalDateTime updatedAt
+    LocalDateTime updatedAt,
+    long participantCount
 ) {
     public static CompetitionResponse fromDomain(Competition competition) {
+        return fromDomain(competition, 0L);
+    }
+
+    public static CompetitionResponse fromDomain(Competition competition, long participantCount) {
         return new CompetitionResponse(
             competition.id(),
             competition.title(),
@@ -39,7 +44,8 @@ public record CompetitionResponse(
             competition.startAt(),
             competition.endAt(),
             competition.createdAt(),
-            competition.updatedAt()
+            competition.updatedAt(),
+            participantCount
         );
     }
 }

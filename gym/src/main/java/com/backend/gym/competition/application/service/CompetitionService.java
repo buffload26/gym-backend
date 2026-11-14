@@ -3,9 +3,11 @@ package com.backend.gym.competition.application.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import com.backend.gym.competition.application.port.out.CompetitionRepositoryPor
 import com.backend.gym.competition.domain.Competition;
 import com.backend.gym.competition.domain.CompetitionParticipant;
 import com.backend.gym.competition.domain.CompetitionStatus;
+import com.backend.gym.competition.domain.CompetitionWithParticipantCount;
 import com.backend.gym.competition.domain.CompetitionWithParticipants;
 import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
 import com.backend.gym.exercise.domain.Exercise;
@@ -89,15 +92,19 @@ public class CompetitionService implements
 
     @Override
     @Transactional(readOnly = true)
-    public Competition findById(UUID id) {
-        return repository.findById(id)
+    public CompetitionWithParticipantCount findById(UUID id) {
+        Competition competition = repository.findById(id)
             .orElseThrow(() -> new CompetitionNotFoundException(id));
+
+        long count = participantRepository.countByCompetitionId(id);
+
+        return new CompetitionWithParticipantCount(competition, count);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional()
     public CompetitionWithParticipants findByIdWithParticipants(UUID id) {
-        Competition competition = findById(id);
+        Competition competition = findById(id).competition();
 
         List<User> participants =
             participantRepository.findAllByCompetitionId(id).stream().map(CompetitionParticipant::user).toList();
@@ -107,28 +114,31 @@ public class CompetitionService implements
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Competition> findAll(Pageable pageable) {
-        return repository.findAllActive(pageable);
+    public Page<CompetitionWithParticipantCount> findAll(Pageable pageable) {
+        Page<Competition> page = repository.findAllActive(pageable);
+        return toPageWithCount(page);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Competition> findAllByFilter(
+    public Page<CompetitionWithParticipantCount> findAllByFilter(
             CompetitionFilter filter,
             Pageable pageable) {
 
-        return repository.findAllByFilter(
+        Page<Competition> page = repository.findAllByFilter(
             filter.userId(),
             filter.exerciseId(),
             filter.status(),
             pageable
         );
+
+        return toPageWithCount(page);
     }
 
     @Override
     @Transactional
     public Competition execute(UpdateCompetitionCommand command) {
-        Competition existing = findById(command.id());
+        Competition existing = findById(command.id()).competition();
 
         validateDates(command.startAt(), command.endAt());
 
@@ -163,7 +173,7 @@ public class CompetitionService implements
     @Override
     @Transactional
     public void execute(UUID id) {
-        Competition existing = findById(id);
+        Competition existing = findById(id).competition();
 
         Competition deleted = new Competition(
             existing.id(),
@@ -187,7 +197,7 @@ public class CompetitionService implements
     @Override
     @Transactional
     public Competition finish(UUID id) {
-        Competition existing = findById(id);
+        Competition existing = findById(id).competition();
 
         if (existing.status() == CompetitionStatus.FINISHED) {
             throw new IllegalStateException("Competition is already finished");
@@ -222,5 +232,22 @@ public class CompetitionService implements
                 "Competition end date must be after start date"
             );
         }
+    }
+
+    private Page<CompetitionWithParticipantCount> toPageWithCount(Page<Competition> page) {
+        List<UUID> ids = page.getContent().stream()
+            .map(Competition::id)
+            .toList();
+
+        Map<UUID, Long> countMap = participantRepository.countByCompetitionIds(ids);
+
+        List<CompetitionWithParticipantCount> content = page.getContent().stream()
+            .map(c -> new CompetitionWithParticipantCount(
+                c,
+                countMap.getOrDefault(c.id(), 0L)
+            ))
+            .toList();
+
+        return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
 }

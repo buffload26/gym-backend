@@ -5,16 +5,16 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.backend.gym.competition.domain.Competition;
 import com.backend.gym.competition.domain.CompetitionStatus;
+import com.backend.gym.competition.domain.CompetitionWithParticipantCount;
 import com.backend.gym.competition.domain.CompetitionWithParticipants;
 
 public interface GetCompetitionUseCase {
 
-    Competition findById(UUID id);
+    CompetitionWithParticipantCount findById(UUID id);
     CompetitionWithParticipants findByIdWithParticipants(UUID id);
-    Page<Competition> findAll(Pageable pageable);
-    Page<Competition> findAllByFilter(CompetitionFilter filter, Pageable pageable);
+    Page<CompetitionWithParticipantCount> findAll(Pageable pageable);
+    Page<CompetitionWithParticipantCount> findAllByFilter(CompetitionFilter filter, Pageable pageable);
 
     record CompetitionFilter(
         UUID userId,
