@@ -18,6 +18,9 @@ import com.backend.gym.competition.domain.Competition;
 import com.backend.gym.competition.domain.CompetitionParticipant;
 import com.backend.gym.competition.domain.CompetitionParticipantStatus;
 import com.backend.gym.competition.domain.CompetitionStatus;
+import com.backend.gym.notification.application.port.in.SendPushNotificationUseCase;
+import com.backend.gym.notification.application.port.in.SendPushNotificationUseCase.SendPushNotificationCommand;
+import com.backend.gym.notification.domain.NotificationType;
 import com.backend.gym.shared.exception.competition.CompetitionInviteNotPendingException;
 import com.backend.gym.shared.exception.competition.CompetitionNotFoundException;
 import com.backend.gym.shared.exception.user.UserNotFoundException;
@@ -39,6 +42,8 @@ public class CompetitionParticipantService implements
     private final CompetitionParticipantRepositoryPort repository;
     private final CompetitionRepositoryPort competitionRepository;
     private final UserRepositoryPort userRepository;
+    
+    private final SendPushNotificationUseCase sendPushNotificationUseCase;
 
     @Override
     @Transactional
@@ -101,7 +106,17 @@ public class CompetitionParticipantService implements
             LocalDateTime.now()
         );
 
-        return repository.save(participant);
+        CompetitionParticipant saved = repository.save(participant);
+
+        sendPushNotificationUseCase.execute(new SendPushNotificationCommand(
+            command.userId(),
+            "Competition Invite",
+            "You have been invited to join: " + competition.title(),
+            NotificationType.COMPETITION_INVITE,
+            command.competitionId()
+        ));
+
+        return saved;
     }
 
     @Override
