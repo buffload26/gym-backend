@@ -2,6 +2,7 @@ package com.backend.gym.competition.infrastructure.persistence;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,13 @@ public class CompetitionParticipantRepositoryAdapter
         return jpaRepository.save(
             CompetitionParticipantEntity.fromDomain(participant)
         ).toDomain();
+    }
+
+    @Override
+    public Optional<CompetitionParticipant> findByCompetitionIdAndUserId(
+            UUID competitionId, UUID userId) {
+        return jpaRepository.findByCompetitionIdAndUserId(competitionId, userId)
+            .map(CompetitionParticipantEntity::toDomain);
     }
 
     @Override

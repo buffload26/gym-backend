@@ -8,6 +8,7 @@ import com.backend.gym.shared.exception.auth.InvalidCredentialsException;
 import com.backend.gym.shared.exception.auth.InvalidTokenException;
 import com.backend.gym.shared.exception.auth.InvalidVerificationCodeException;
 import com.backend.gym.shared.exception.auth.VerificationCodeExpiredException;
+import com.backend.gym.shared.exception.competition.CompetitionInviteNotPendingException;
 import com.backend.gym.shared.exception.domain.AlreadyExistsException;
 import com.backend.gym.shared.exception.domain.BusinessException;
 import com.backend.gym.shared.exception.domain.NotFoundException;
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleInvalidToken(InvalidTokenException ex) {
         return new ErrorResponse("INVALID_TOKEN", ex.getMessage());
     }
-    
+
     @ExceptionHandler({InvalidVerificationCodeException.class, VerificationCodeExpiredException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleVerificationCode(BusinessException ex) {
@@ -53,6 +54,24 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleAlreadyExists(AlreadyExistsException ex) {
         return new ErrorResponse("CONFLICT", ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
+        return new ErrorResponse("BAD_REQUEST", ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleIllegalState(IllegalStateException ex) {
+        return new ErrorResponse("CONFLICT", ex.getMessage());
+    }
+
+    @ExceptionHandler(CompetitionInviteNotPendingException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleCompetitionInviteNotPending(CompetitionInviteNotPendingException ex) {
+        return new ErrorResponse("COMPETITION_INVITE_NOT_PENDING", ex.getMessage());
     }
 
     @ExceptionHandler(FileUploadException.class)

@@ -9,5 +9,7 @@ public record CompetitionParticipant(
     UUID id,
     Competition competition,
     User user,
-    LocalDateTime joinedAt
+    CompetitionParticipantStatus status,
+    LocalDateTime joinedAt,
+    LocalDateTime invitedAt
 ) {}

@@ -5,10 +5,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.backend.gym.competition.domain.CompetitionParticipant;
+import com.backend.gym.competition.domain.CompetitionParticipantStatus;
 import com.backend.gym.user.infrastructure.persistence.UserEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -49,21 +52,28 @@ public class CompetitionParticipantEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private CompetitionParticipantStatus status;
+
     @Column(name = "joined_at", nullable = false, updatable = false)
     private LocalDateTime joinedAt;
+
+    @Column(name = "invited_at")
+    private LocalDateTime invitedAt;
 
     public CompetitionParticipant toDomain() {
         return new CompetitionParticipant(
             id,
             competition != null ? competition.toDomain() : null,
             user != null ? user.toDomain() : null,
-            joinedAt
+            status,
+            joinedAt,
+            invitedAt
         );
     }
 
-    public static CompetitionParticipantEntity fromDomain(
-        CompetitionParticipant participant) {
-
+    public static CompetitionParticipantEntity fromDomain(CompetitionParticipant participant) {
         return CompetitionParticipantEntity.builder()
             .id(participant.id())
             .competition(
@@ -76,7 +86,9 @@ public class CompetitionParticipantEntity {
                     ? UserEntity.fromDomain(participant.user())
                     : null
             )
+            .status(participant.status())
             .joinedAt(participant.joinedAt())
+            .invitedAt(participant.invitedAt())
             .build();
     }
 }

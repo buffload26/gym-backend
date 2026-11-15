@@ -22,15 +22,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.gym.competition.application.port.in.AcceptCompetitionInviteUseCase;
 import com.backend.gym.competition.application.port.in.CreateCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.CreateCompetitionUseCase.CreateCompetitionCommand;
 import com.backend.gym.competition.application.port.in.DeleteCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.FinishCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.GetCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.GetCompetitionUseCase.CompetitionFilter;
+import com.backend.gym.competition.application.port.in.InviteCompetitionParticipantUseCase;
+import com.backend.gym.competition.application.port.in.InviteCompetitionParticipantUseCase.InviteCompetitionParticipantCommand;
 import com.backend.gym.competition.application.port.in.JoinCompetitionParticipantUseCase;
 import com.backend.gym.competition.application.port.in.JoinCompetitionParticipantUseCase.JoinCompetitionParticipantCommand;
 import com.backend.gym.competition.application.port.in.LeaveCompetitionParticipantUseCase;
+import com.backend.gym.competition.application.port.in.RejectCompetitionInviteUseCase;
 import com.backend.gym.competition.application.port.in.UpdateCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.UpdateCompetitionUseCase.UpdateCompetitionCommand;
 import com.backend.gym.competition.domain.Competition;
@@ -64,6 +68,9 @@ public class CompetitionController {
 
     private final JoinCompetitionParticipantUseCase joinCompetitionParticipantUseCase;
     private final LeaveCompetitionParticipantUseCase leaveCompetitionParticipantUseCase;
+    private final InviteCompetitionParticipantUseCase inviteCompetitionParticipantUseCase;
+    private final AcceptCompetitionInviteUseCase acceptCompetitionInviteUseCase;
+    private final RejectCompetitionInviteUseCase rejectCompetitionInviteUseCase;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create competition", description = "Creates a new competition")
@@ -270,5 +277,61 @@ public class CompetitionController {
         leaveCompetitionParticipantUseCase.execute(competitionId, userId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{competitionId}/participants/invite")
+    @Operation(summary = "Invite participant", description = "Invites a user to a competition")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Invite sent successfully"),
+        @ApiResponse(responseCode = "404", description = "Competition or user not found"),
+        @ApiResponse(responseCode = "409", description = "User is already a participant")
+    })
+    public ResponseEntity<CompetitionParticipantResponse> invite(
+            @PathVariable UUID competitionId,
+            @RequestBody JoinCompetitionParticipantRequest request) {
+
+        InviteCompetitionParticipantCommand command = new InviteCompetitionParticipantCommand(
+            competitionId,
+            request.userId()
+        );
+
+        CompetitionParticipant participant = inviteCompetitionParticipantUseCase.execute(command);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(CompetitionParticipantResponse.fromDomain(participant));
+    }
+
+    @PatchMapping("/{competitionId}/participants/{userId}/accept")
+    @Operation(summary = "Accept invite", description = "Accepts a competition invite")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Invite accepted successfully"),
+        @ApiResponse(responseCode = "404", description = "Invite not found")
+    })
+    public ResponseEntity<CompetitionParticipantResponse> accept(
+            @PathVariable UUID competitionId,
+            @PathVariable UUID userId) {
+
+        CompetitionParticipant participant = acceptCompetitionInviteUseCase.accept(
+            competitionId, userId
+        );
+
+        return ResponseEntity.ok(CompetitionParticipantResponse.fromDomain(participant));
+    }
+
+    @PatchMapping("/{competitionId}/participants/{userId}/reject")
+    @Operation(summary = "Reject invite", description = "Rejects a competition invite")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Invite rejected successfully"),
+        @ApiResponse(responseCode = "404", description = "Invite not found")
+    })
+    public ResponseEntity<CompetitionParticipantResponse> reject(
+            @PathVariable UUID competitionId,
+            @PathVariable UUID userId) {
+
+        CompetitionParticipant participant = rejectCompetitionInviteUseCase.reject(
+            competitionId, userId
+        );
+
+        return ResponseEntity.ok(CompetitionParticipantResponse.fromDomain(participant));
     }
 }
