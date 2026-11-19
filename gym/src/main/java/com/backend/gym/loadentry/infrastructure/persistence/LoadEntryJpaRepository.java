@@ -21,6 +21,7 @@ public interface LoadEntryJpaRepository extends JpaRepository<LoadEntryEntity, U
     List<LoadEntryEntity> findAllByExerciseIdIn(List<UUID> exerciseIds);
     Page<LoadEntryEntity> findAllByUserId(UUID userId, Pageable pageable);
     Page<LoadEntryEntity> findAllByExerciseId(UUID exerciseId, Pageable pageable);
+    Page<LoadEntryEntity> findAllByExerciseIdAndWorkoutId(UUID exerciseId, UUID workoutId, Pageable pageable);
     @Query("SELECT COUNT(DISTINCT l.exercise.id) FROM LoadEntryEntity l WHERE l.user.id = :userId AND MONTH(l.performedAt) = :month AND YEAR(l.performedAt) = :year")
     int countDistinctExercisesByUserIdAndMonth(@Param("userId") UUID userId, @Param("month") int month, @Param("year") int year);
     @Query("SELECT COALESCE(SUM(l.loadKg), 0) FROM LoadEntryEntity l WHERE l.user.id = :userId AND MONTH(l.performedAt) = :month AND YEAR(l.performedAt) = :year")

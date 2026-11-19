@@ -3,6 +3,8 @@ package com.backend.gym.competition.application.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -169,6 +171,20 @@ public class CompetitionParticipantService implements
     @Transactional(readOnly = true)
     public boolean existsByCompetitionAndUser(UUID competitionId, UUID userId) {
         return repository.existsByCompetitionIdAndUserId(competitionId, userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CompetitionParticipant> findAllByFilter(
+            CompetitionParticipantFilter filter,
+            Pageable pageable
+    ) {
+        return repository.findAllByFilter(
+            filter.competitionId(),
+            filter.userId(),
+            filter.status(),
+            pageable
+        );
     }
 
     @Override

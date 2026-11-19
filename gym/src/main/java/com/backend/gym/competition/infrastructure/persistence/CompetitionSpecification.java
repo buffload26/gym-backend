@@ -15,8 +15,29 @@ public class CompetitionSpecification {
     }
 
     public static Specification<CompetitionEntity> byUserId(UUID userId) {
-        return (root, query, cb) -> userId == null ? null :
-            cb.equal(root.get("createdByUser").get("id"), userId);
+        return (root, query, cb) -> {
+            if (userId == null) {
+                return null;
+            }
+
+            var subquery = query.subquery(Long.class);
+            var participant = subquery.from(CompetitionParticipantEntity.class);
+
+            subquery.select(cb.literal(1L));
+
+            subquery.where(
+                cb.equal(
+                    participant.get("competition").get("id"),
+                    root.get("id")
+                ),
+                cb.equal(
+                    participant.get("user").get("id"),
+                    userId
+                )
+            );
+
+            return cb.exists(subquery);
+        };
     }
 
     public static Specification<CompetitionEntity> byExerciseId(UUID exerciseId) {

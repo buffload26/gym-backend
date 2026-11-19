@@ -6,10 +6,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import com.backend.gym.competition.application.port.out.CompetitionParticipantRepositoryPort;
 import com.backend.gym.competition.domain.CompetitionParticipant;
+import com.backend.gym.competition.domain.CompetitionParticipantStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +44,23 @@ public class CompetitionParticipantRepositoryAdapter
             .stream()
             .map(CompetitionParticipantEntity::toDomain)
             .toList();
+    }
+
+    @Override
+    public Page<CompetitionParticipant> findAllByFilter(
+            UUID competitionId,
+            UUID userId,
+            CompetitionParticipantStatus status,
+            Pageable pageable
+    ) {
+        Specification<CompetitionParticipantEntity> specification =
+            Specification
+                .where(CompetitionParticipantSpecification.byCompetitionId(competitionId))
+                .and(CompetitionParticipantSpecification.byUserId(userId))
+                .and(CompetitionParticipantSpecification.byStatus(status));
+
+        return jpaRepository.findAll(specification, pageable)
+            .map(CompetitionParticipantEntity::toDomain);
     }
 
     @Override

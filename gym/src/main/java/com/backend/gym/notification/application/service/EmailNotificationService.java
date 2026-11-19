@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService implements SendEmailUseCase {
+public class EmailNotificationService implements SendEmailUseCase {
 
     private final EmailPort emailPort;
 

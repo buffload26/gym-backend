@@ -10,5 +10,5 @@ import com.backend.gym.loadentry.domain.LoadEntry;
 public interface GetLoadEntryUseCase {
     LoadEntry findById(UUID id);
     Page<LoadEntry> findAllByUser(UUID userId, Pageable pageable);
-    Page<LoadEntry> findAllByExercise(UUID exerciseId, Pageable pageable);
+    Page<LoadEntry> findAllByExerciseAndWorkout(UUID exerciseId, UUID workoutId, Pageable pageable);
 }

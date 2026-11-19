@@ -90,9 +90,20 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     }
 
     @Override
-    public Page<LoadEntry> findAllByExerciseId(UUID exerciseId, Pageable pageable) {
-        return jpaRepository.findAllByExerciseId(exerciseId, pageable)
-            .map(LoadEntryEntity::toDomain);
+    public Page<LoadEntry> findAllByExerciseIdAndWorkoutId(
+            UUID exerciseId,
+            UUID workoutId,
+            Pageable pageable
+    ) {
+        Page<LoadEntryEntity> entries = workoutId == null
+            ? jpaRepository.findAllByExerciseId(exerciseId, pageable)
+            : jpaRepository.findAllByExerciseIdAndWorkoutId(
+                exerciseId,
+                workoutId,
+                pageable
+            );
+
+        return entries.map(LoadEntryEntity::toDomain);
     }
 
     @Override

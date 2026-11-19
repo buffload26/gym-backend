@@ -100,6 +100,7 @@ public class LoadEntryController {
     @ApiResponse(responseCode = "200", description = "List returned successfully")
     public ResponseEntity<Page<LoadEntryResponse>> findAllByExercise(
         @PathVariable UUID exerciseId,
+        @RequestParam(required = false) UUID workoutId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "createdAt") String sort,
@@ -111,7 +112,7 @@ public class LoadEntryController {
             sort
         );
 
-        Page<LoadEntryResponse> entries = getLoadEntryUseCase.findAllByExercise(exerciseId, pageable)
+        Page<LoadEntryResponse> entries = getLoadEntryUseCase.findAllByExerciseAndWorkout(exerciseId, workoutId, pageable)
             .map(LoadEntryResponse::fromDomain);
 
         return ResponseEntity.ok(entries);

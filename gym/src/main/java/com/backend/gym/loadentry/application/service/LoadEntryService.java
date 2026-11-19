@@ -16,6 +16,7 @@ import com.backend.gym.loadentry.application.port.in.GetLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.UpdateLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.out.LoadEntryRepositoryPort;
 import com.backend.gym.loadentry.domain.LoadEntry;
+import com.backend.gym.loadentry.infrastructure.persistence.LoadEntryEntity;
 import com.backend.gym.shared.exception.exercise.ExerciseNotFoundException;
 import com.backend.gym.shared.exception.loadentry.LoadEntryNotFoundException;
 import com.backend.gym.shared.exception.user.UserNotFoundException;
@@ -88,8 +89,8 @@ public class LoadEntryService implements
     }
 
     @Override
-    public Page<LoadEntry> findAllByExercise(UUID exerciseId, Pageable pageable) {
-        return repository.findAllByExerciseId(exerciseId, pageable);
+    public Page<LoadEntry> findAllByExerciseAndWorkout(UUID exerciseId, UUID workoutId, Pageable pageable) {
+        return repository.findAllByExerciseIdAndWorkoutId(exerciseId, workoutId, pageable);
     }
 
     @Override
