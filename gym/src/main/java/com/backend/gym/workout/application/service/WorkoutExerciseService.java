@@ -86,7 +86,9 @@ public class WorkoutExerciseService implements
             ));
         }
 
-        List<LoadEntry> loads = loadEntryRepository.findAllByExerciseIdIn(exerciseIds);
+        UUID userId = workoutExercisePage.getContent().get(0).workout().user().id();
+
+        List<LoadEntry> loads = loadEntryRepository.findAllByExerciseIdInAndUserId(exerciseIds, userId);
 
         Map<UUID, List<LoadEntry>> loadsByExerciseId = loads.stream()
             .collect(Collectors.groupingBy(load -> load.exercise().id()));

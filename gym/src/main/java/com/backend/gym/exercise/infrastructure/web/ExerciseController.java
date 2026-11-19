@@ -126,7 +126,7 @@ public class ExerciseController {
     @Operation(summary = "Filter exercises", description = "Returns exercises filtered by muscle group and/or user")
     @ApiResponse(responseCode = "200", description = "List returned successfully")
     public ResponseEntity<Page<ExerciseWithLoadsResponse>> findAllByFilter(
-            @RequestParam(required = false) UUID userId,
+            @RequestParam(required = true) UUID userId,
             @RequestParam(required = false) String muscleGroup,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

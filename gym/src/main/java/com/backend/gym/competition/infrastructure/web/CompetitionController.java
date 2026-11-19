@@ -16,36 +16,29 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.gym.competition.application.port.in.AcceptCompetitionInviteUseCase;
 import com.backend.gym.competition.application.port.in.CreateCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.CreateCompetitionUseCase.CreateCompetitionCommand;
 import com.backend.gym.competition.application.port.in.DeleteCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.FinishCompetitionUseCase;
+import com.backend.gym.competition.application.port.in.GetCompetitionParticipantUseCase;
+import com.backend.gym.competition.application.port.in.GetCompetitionParticipantUseCase.CompetitionParticipantFilter;
 import com.backend.gym.competition.application.port.in.GetCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.GetCompetitionUseCase.CompetitionFilter;
-import com.backend.gym.competition.application.port.in.InviteCompetitionParticipantUseCase;
-import com.backend.gym.competition.application.port.in.InviteCompetitionParticipantUseCase.InviteCompetitionParticipantCommand;
-import com.backend.gym.competition.application.port.in.JoinCompetitionParticipantUseCase;
-import com.backend.gym.competition.application.port.in.JoinCompetitionParticipantUseCase.JoinCompetitionParticipantCommand;
-import com.backend.gym.competition.application.port.in.LeaveCompetitionParticipantUseCase;
-import com.backend.gym.competition.application.port.in.RejectCompetitionInviteUseCase;
 import com.backend.gym.competition.application.port.in.UpdateCompetitionUseCase;
 import com.backend.gym.competition.application.port.in.UpdateCompetitionUseCase.UpdateCompetitionCommand;
 import com.backend.gym.competition.domain.Competition;
-import com.backend.gym.competition.domain.CompetitionParticipant;
+import com.backend.gym.competition.domain.CompetitionParticipantStatus;
 import com.backend.gym.competition.domain.CompetitionStatus;
 import com.backend.gym.competition.domain.CompetitionWithParticipants;
 import com.backend.gym.competition.infrastructure.web.dto.CompetitionDetailResponse;
 import com.backend.gym.competition.infrastructure.web.dto.CompetitionParticipantResponse;
 import com.backend.gym.competition.infrastructure.web.dto.CompetitionResponse;
 import com.backend.gym.competition.infrastructure.web.dto.CreateCompetitionRequest;
-import com.backend.gym.competition.infrastructure.web.dto.JoinCompetitionParticipantRequest;
 import com.backend.gym.competition.infrastructure.web.dto.UpdateCompetitionRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,11 +59,8 @@ public class CompetitionController {
     private final DeleteCompetitionUseCase deleteCompetitionUseCase;
     private final FinishCompetitionUseCase finishCompetitionUseCase;
 
-    private final JoinCompetitionParticipantUseCase joinCompetitionParticipantUseCase;
-    private final LeaveCompetitionParticipantUseCase leaveCompetitionParticipantUseCase;
-    private final InviteCompetitionParticipantUseCase inviteCompetitionParticipantUseCase;
-    private final AcceptCompetitionInviteUseCase acceptCompetitionInviteUseCase;
-    private final RejectCompetitionInviteUseCase rejectCompetitionInviteUseCase;
+    private final GetCompetitionParticipantUseCase getCompetitionParticipantUseCase;
+
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create competition", description = "Creates a new competition")
@@ -234,5 +224,42 @@ public class CompetitionController {
         deleteCompetitionUseCase.execute(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/participants/filter")
+    @Operation(
+        summary = "Filter competition participants",
+        description = "Returns participants filtered by user and/or status"
+    )
+    @ApiResponse(responseCode = "200", description = "List returned successfully")
+    public ResponseEntity<Page<CompetitionParticipantResponse>> findAllByFilter(
+            @RequestParam(required = false) UUID competitionId,
+            @RequestParam(required = false) UUID userId,
+            @RequestParam(required = false) CompetitionParticipantStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "joinedAt") String sort,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+        Pageable pageable = PageRequest.of(
+            page,
+            size,
+            direction.equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC,
+            sort
+        );
+
+        CompetitionParticipantFilter filter = new CompetitionParticipantFilter(
+            competitionId,
+            userId,
+            status
+        );
+
+        Page<CompetitionParticipantResponse> participants =
+            getCompetitionParticipantUseCase.findAllByFilter(filter, pageable)
+                .map(CompetitionParticipantResponse::fromDomain);
+
+        return ResponseEntity.ok(participants);
     }
 }

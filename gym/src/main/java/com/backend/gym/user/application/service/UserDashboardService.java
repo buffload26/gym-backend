@@ -65,7 +65,7 @@ public class UserDashboardService implements GetUserDashboardUseCase {
 
         List<LoadEntry> favoriteLoads = favoriteExerciseIds.isEmpty()
             ? List.of()
-            : loadEntryRepository.findAllByExerciseIdIn(favoriteExerciseIds);
+            : loadEntryRepository.findAllByExerciseIdInAndUserId(favoriteExerciseIds, userId);
 
         Map<UUID, List<LoadEntry>> favoriteLoadsByExerciseId = favoriteLoads.stream()
             .collect(Collectors.groupingBy(load -> load.exercise().id()));

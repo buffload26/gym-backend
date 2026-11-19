@@ -143,41 +143,4 @@ public class CompetitionParticipantController {
 
         return ResponseEntity.ok(CompetitionParticipantResponse.fromDomain(participant));
     }
-
-    @GetMapping("/filter")
-    @Operation(
-        summary = "Filter competition participants",
-        description = "Returns participants filtered by user and/or status"
-    )
-    @ApiResponse(responseCode = "200", description = "List returned successfully")
-    public ResponseEntity<Page<CompetitionParticipantResponse>> findAllByFilter(
-            @PathVariable UUID competitionId,
-            @RequestParam(required = false) UUID userId,
-            @RequestParam(required = false) CompetitionParticipantStatus status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "joinedAt") String sort,
-            @RequestParam(defaultValue = "desc") String direction
-    ) {
-        Pageable pageable = PageRequest.of(
-            page,
-            size,
-            direction.equalsIgnoreCase("desc")
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC,
-            sort
-        );
-
-        CompetitionParticipantFilter filter = new CompetitionParticipantFilter(
-            competitionId,
-            userId,
-            status
-        );
-
-        Page<CompetitionParticipantResponse> participants =
-            getCompetitionParticipantUseCase.findAllByFilter(filter, pageable)
-                .map(CompetitionParticipantResponse::fromDomain);
-
-        return ResponseEntity.ok(participants);
-    }
 }

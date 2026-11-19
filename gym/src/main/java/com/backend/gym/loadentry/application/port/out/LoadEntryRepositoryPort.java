@@ -17,7 +17,7 @@ public interface LoadEntryRepositoryPort {
     Optional<LoadEntry> findLastByExerciseIdAndUserId(UUID exerciseId, UUID userId);
     Page<LoadEntry> findAllByUserId(UUID userId, Pageable pageable);
     Page<LoadEntry> findAllByExerciseIdAndWorkoutId(UUID exerciseId, UUID workoutId, Pageable pageable);
-    List<LoadEntry> findAllByExerciseIdIn(List<UUID> exerciseIds);
+    List<LoadEntry> findAllByExerciseIdInAndUserId(List<UUID> exerciseIds, UUID userId);
     List<LocalDate> findDistinctPerformedDatesByUserId(UUID userId);
     List<LoadEntry> findLastFiveByUserId(UUID userId);
     void deleteById(UUID id);

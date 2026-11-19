@@ -64,8 +64,8 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     }
 
     @Override
-    public List<LoadEntry> findAllByExerciseIdIn(List<UUID> exerciseIds) {
-        return jpaRepository.findAllByExerciseIdIn(exerciseIds)
+    public List<LoadEntry> findAllByExerciseIdInAndUserId(List<UUID> exerciseIds, UUID userId) {
+        return jpaRepository.findAllByExerciseIdInAndUserId(exerciseIds, userId)
             .stream()
             .map(LoadEntryEntity::toDomain)
             .toList();

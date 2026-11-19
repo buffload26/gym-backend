@@ -18,7 +18,7 @@ public interface LoadEntryJpaRepository extends JpaRepository<LoadEntryEntity, U
     List<LocalDate> findDistinctPerformedDatesByUserId(@Param("userId") UUID userId);
     @Query("SELECT l FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.createdAt DESC LIMIT 5")
     List<LoadEntryEntity> findLastFiveByUserId(@Param("userId") UUID userId);
-    List<LoadEntryEntity> findAllByExerciseIdIn(List<UUID> exerciseIds);
+    List<LoadEntryEntity> findAllByExerciseIdInAndUserId(List<UUID> exerciseIds, UUID userId);
     Page<LoadEntryEntity> findAllByUserId(UUID userId, Pageable pageable);
     Page<LoadEntryEntity> findAllByExerciseId(UUID exerciseId, Pageable pageable);
     Page<LoadEntryEntity> findAllByExerciseIdAndWorkoutId(UUID exerciseId, UUID workoutId, Pageable pageable);
