@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import com.backend.gym.competition.domain.CompetitionParticipantStatus;
 import com.backend.gym.competition.domain.CompetitionStatus;
 
 public class CompetitionSpecification {
@@ -33,6 +34,10 @@ public class CompetitionSpecification {
                 cb.equal(
                     participant.get("user").get("id"),
                     userId
+                ),
+                cb.equal(
+                    participant.get("status"),
+                    CompetitionParticipantStatus.ACCEPTED
                 )
             );
 

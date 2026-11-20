@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.backend.gym.auth.application.port.out.JwtPort;
 import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
 import com.backend.gym.exercise.domain.Exercise;
 import com.backend.gym.loadentry.application.port.in.CreateLoadEntryUseCase;
@@ -16,7 +17,6 @@ import com.backend.gym.loadentry.application.port.in.GetLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.UpdateLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.out.LoadEntryRepositoryPort;
 import com.backend.gym.loadentry.domain.LoadEntry;
-import com.backend.gym.loadentry.infrastructure.persistence.LoadEntryEntity;
 import com.backend.gym.shared.exception.exercise.ExerciseNotFoundException;
 import com.backend.gym.shared.exception.loadentry.LoadEntryNotFoundException;
 import com.backend.gym.shared.exception.user.UserNotFoundException;
@@ -40,6 +40,8 @@ public class LoadEntryService implements
     private final UserRepositoryPort userRepository;
     private final ExerciseRepositoryPort exerciseRepository;
     private final WorkoutRepositoryPort workoutRepository;
+
+    private final JwtPort jwtPort;
 
     @Override
     public LoadEntry execute(CreateLoadEntryCommand command) {
@@ -89,8 +91,13 @@ public class LoadEntryService implements
     }
 
     @Override
-    public Page<LoadEntry> findAllByExerciseAndWorkout(UUID exerciseId, UUID workoutId, Pageable pageable) {
-        return repository.findAllByExerciseIdAndWorkoutId(exerciseId, workoutId, pageable);
+    public Page<LoadEntry> findAllByExerciseAndWorkoutAndUser(LoadEntryExerciseFilter filter, Pageable pageable) {
+        String email = jwtPort.extractEmail(filter.accessToken());
+        
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException(email));
+
+        return repository.findAllByExerciseIdAndUserIdAndWorkoutId(filter.exerciseId(), user.id(), filter.workoutId(), pageable);
     }
 
     @Override

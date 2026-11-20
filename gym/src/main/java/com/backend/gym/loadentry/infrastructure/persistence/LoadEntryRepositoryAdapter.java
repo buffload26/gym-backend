@@ -98,26 +98,23 @@ public class LoadEntryRepositoryAdapter implements LoadEntryRepositoryPort {
     }
 
     @Override
-    public Page<LoadEntry> findAllByExerciseIdAndWorkoutId(
+    public Page<LoadEntry> findAllByExerciseIdAndUserIdAndWorkoutId(
             UUID exerciseId,
+            UUID userId,
             UUID workoutId,
             Pageable pageable
     ) {
         Page<LoadEntryEntity> entries = workoutId == null
-            ? jpaRepository.findAllByExerciseId(exerciseId, pageable)
-            : jpaRepository.findAllByExerciseIdAndWorkoutId(
-                exerciseId,
-                workoutId,
-                pageable
-            );
+            ? jpaRepository.findAllByExerciseIdAndUserId(exerciseId, userId, pageable)
+            : jpaRepository.findAllByExerciseIdAndUserIdAndWorkoutId(exerciseId, userId, workoutId, pageable);
 
         return entries.map(LoadEntryEntity::toDomain);
     }
 
-    @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
-    }
+        @Override
+        public void deleteById(UUID id) {
+            jpaRepository.deleteById(id);
+        }
 
     @Override
     public int countByUserIdAndMonth(UUID userId, int month, int year) {

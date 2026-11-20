@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ import com.backend.gym.loadentry.application.port.in.CreateLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.CreateLoadEntryUseCase.CreateLoadEntryCommand;
 import com.backend.gym.loadentry.application.port.in.DeleteLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.GetLoadEntryUseCase;
+import com.backend.gym.loadentry.application.port.in.GetLoadEntryUseCase.LoadEntryExerciseFilter;
 import com.backend.gym.loadentry.application.port.in.UpdateLoadEntryUseCase;
 import com.backend.gym.loadentry.application.port.in.UpdateLoadEntryUseCase.UpdateLoadEntryCommand;
 import com.backend.gym.loadentry.domain.LoadEntry;
@@ -104,7 +106,8 @@ public class LoadEntryController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "createdAt") String sort,
-        @RequestParam(defaultValue = "desc") String direction) {
+        @RequestParam(defaultValue = "desc") String direction,
+        @RequestHeader("Authorization") String accessToken) {
 
         Pageable pageable = PageRequest.of(
             page, size,
@@ -112,7 +115,14 @@ public class LoadEntryController {
             sort
         );
 
-        Page<LoadEntryResponse> entries = getLoadEntryUseCase.findAllByExerciseAndWorkout(exerciseId, workoutId, pageable)
+        LoadEntryExerciseFilter filter = new LoadEntryExerciseFilter(
+            exerciseId,
+            workoutId,
+            accessToken.replace("Bearer ", "")
+        );
+
+        Page<LoadEntryResponse> entries = getLoadEntryUseCase
+            .findAllByExerciseAndWorkoutAndUser(filter, pageable)
             .map(LoadEntryResponse::fromDomain);
 
         return ResponseEntity.ok(entries);

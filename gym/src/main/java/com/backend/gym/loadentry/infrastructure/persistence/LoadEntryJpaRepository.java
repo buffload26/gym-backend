@@ -14,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface LoadEntryJpaRepository extends JpaRepository<LoadEntryEntity, UUID> {
     Optional<LoadEntryEntity> findTopByExerciseIdAndUserIdOrderByCreatedAtDesc(UUID exerciseId, UUID userId);
+    Page<LoadEntryEntity> findAllByExerciseIdAndUserId(UUID exerciseId, UUID userId, Pageable pageable);
+    Page<LoadEntryEntity> findAllByExerciseIdAndUserIdAndWorkoutId(UUID exerciseId, UUID userId, UUID workoutId, Pageable pageable);
     @Query("SELECT DISTINCT l.performedAt FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.performedAt DESC")
     List<LocalDate> findDistinctPerformedDatesByUserId(@Param("userId") UUID userId);
     @Query("SELECT l FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.createdAt DESC LIMIT 5")

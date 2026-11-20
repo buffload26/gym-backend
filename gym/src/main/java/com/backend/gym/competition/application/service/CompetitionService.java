@@ -21,6 +21,7 @@ import com.backend.gym.competition.application.port.out.CompetitionParticipantRe
 import com.backend.gym.competition.application.port.out.CompetitionRepositoryPort;
 import com.backend.gym.competition.domain.Competition;
 import com.backend.gym.competition.domain.CompetitionParticipant;
+import com.backend.gym.competition.domain.CompetitionParticipantStatus;
 import com.backend.gym.competition.domain.CompetitionStatus;
 import com.backend.gym.competition.domain.CompetitionWithParticipantCount;
 import com.backend.gym.competition.domain.CompetitionWithParticipants;
@@ -87,7 +88,21 @@ public class CompetitionService implements
             LocalDateTime.now()
         );
 
-        return repository.save(competition);
+        Competition saved = repository.save(competition);
+
+        if (createdByUser != null) {
+            CompetitionParticipant participant = new CompetitionParticipant(
+                null,
+                saved,
+                createdByUser,
+                CompetitionParticipantStatus.ACCEPTED,
+                LocalDateTime.now(),
+                null
+            );
+            participantRepository.save(participant);
+        }
+
+        return saved;
     }
 
     @Override
