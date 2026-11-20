@@ -104,7 +104,7 @@ public class ExerciseService implements
             return exercisePage.map(ex -> new ExerciseWithLoads(ex, List.of()));
         }
 
-        List<LoadEntry> loads = loadEntryRepository.findAllByExerciseIdInAndUserId(exerciseIds, filter.userId());
+        List<LoadEntry> loads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutIdIsNull(exerciseIds, filter.userId());
 
         Map<UUID, List<LoadEntry>> loadsByExerciseId = loads.stream()
             .collect(Collectors.groupingBy(load -> load.exercise().id()));
@@ -127,7 +127,7 @@ public class ExerciseService implements
             return exercisePage.map(ex -> new ExerciseWithLoads(ex, List.of()));
         }
 
-        List<LoadEntry> loads = loadEntryRepository.findAllByExerciseIdInAndUserId(exerciseIds, userId);
+        List<LoadEntry> loads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutIdIsNull(exerciseIds, userId);
 
         Map<UUID, List<LoadEntry>> loadsByExerciseId = loads.stream()
             .collect(Collectors.groupingBy(load -> load.exercise().id()));

@@ -18,7 +18,39 @@ public interface LoadEntryJpaRepository extends JpaRepository<LoadEntryEntity, U
     List<LocalDate> findDistinctPerformedDatesByUserId(@Param("userId") UUID userId);
     @Query("SELECT l FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.createdAt DESC LIMIT 5")
     List<LoadEntryEntity> findLastFiveByUserId(@Param("userId") UUID userId);
-    List<LoadEntryEntity> findAllByExerciseIdInAndUserId(List<UUID> exerciseIds, UUID userId);
+    @Query("""
+        SELECT l FROM LoadEntryEntity l
+        WHERE l.exercise.id IN :exerciseIds
+        AND l.user.id = :userId
+        AND l.workout IS NULL
+        AND l.createdAt = (
+            SELECT MAX(l2.createdAt) FROM LoadEntryEntity l2
+            WHERE l2.exercise.id = l.exercise.id
+                AND l2.user.id = :userId
+                AND l2.workout IS NULL
+        )
+    """)
+    List<LoadEntryEntity> findLastByExerciseIdInAndUserIdAndWorkoutIdIsNullOrderByCreatedAtDesc(
+        @Param("exerciseIds") List<UUID> exerciseIds,
+        @Param("userId") UUID userId
+    );
+    @Query("""
+        SELECT l FROM LoadEntryEntity l
+        WHERE l.exercise.id IN :exerciseIds
+        AND l.user.id = :userId
+        AND l.workout.id = :workoutId
+        AND l.createdAt = (
+            SELECT MAX(l2.createdAt) FROM LoadEntryEntity l2
+            WHERE l2.exercise.id = l.exercise.id
+                AND l2.user.id = :userId
+                AND l2.workout.id = :workoutId
+        )
+    """)
+    List<LoadEntryEntity> findLastByExerciseIdInAndUserIdAndWorkoutIdOrderByCreatedAtDesc(
+        @Param("exerciseIds") List<UUID> exerciseIds,
+        @Param("userId") UUID userId,
+        @Param("workoutId") UUID workoutId
+    );
     Page<LoadEntryEntity> findAllByUserId(UUID userId, Pageable pageable);
     Page<LoadEntryEntity> findAllByExerciseId(UUID exerciseId, Pageable pageable);
     Page<LoadEntryEntity> findAllByExerciseIdAndWorkoutId(UUID exerciseId, UUID workoutId, Pageable pageable);

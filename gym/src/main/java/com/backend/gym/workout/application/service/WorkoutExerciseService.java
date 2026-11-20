@@ -88,14 +88,21 @@ public class WorkoutExerciseService implements
 
         UUID userId = workoutExercisePage.getContent().get(0).workout().user().id();
 
-        List<LoadEntry> loads = loadEntryRepository.findAllByExerciseIdInAndUserId(exerciseIds, userId);
+        List<LoadEntry> workoutLoads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutId(exerciseIds, userId, workoutId);
+        List<LoadEntry> standaloneLoads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutIdIsNull(exerciseIds, userId);
 
-        Map<UUID, List<LoadEntry>> loadsByExerciseId = loads.stream()
+        Map<UUID, List<LoadEntry>> workoutLoadsByExerciseId = workoutLoads.stream()
+            .collect(Collectors.groupingBy(load -> load.exercise().id()));
+
+        Map<UUID, List<LoadEntry>> standaloneLoadsByExerciseId = standaloneLoads.stream()
             .collect(Collectors.groupingBy(load -> load.exercise().id()));
 
         return workoutExercisePage.map(we -> {
-            List<LoadEntry> exerciseLoads = loadsByExerciseId
-                .getOrDefault(we.exercise().exercise().id(), List.of());
+            UUID exerciseId = we.exercise().exercise().id();
+
+            List<LoadEntry> exerciseLoads = workoutLoadsByExerciseId.containsKey(exerciseId)
+                ? workoutLoadsByExerciseId.get(exerciseId)
+                : standaloneLoadsByExerciseId.getOrDefault(exerciseId, List.of());
 
             return new WorkoutExercise(
                 we.id(),
