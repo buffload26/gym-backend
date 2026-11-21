@@ -1,4 +1,4 @@
-package com.backend.gym.competition.infrastructure.persistence;
+package com.backend.gym.competition.infrastructure.persistence.projection;
 
 import java.util.UUID;
 

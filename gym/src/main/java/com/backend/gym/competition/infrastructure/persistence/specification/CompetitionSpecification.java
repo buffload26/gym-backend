@@ -1,5 +1,5 @@
 
-package com.backend.gym.competition.infrastructure.persistence;
+package com.backend.gym.competition.infrastructure.persistence.specification;
 
 import java.util.UUID;
 
@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.backend.gym.competition.domain.CompetitionParticipantStatus;
 import com.backend.gym.competition.domain.CompetitionStatus;
+import com.backend.gym.competition.infrastructure.persistence.CompetitionEntity;
+import com.backend.gym.competition.infrastructure.persistence.CompetitionParticipantEntity;
 
 public class CompetitionSpecification {
 

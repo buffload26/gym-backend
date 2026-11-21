@@ -1,47 +1,23 @@
 package com.backend.gym.shared.exception.handler;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.backend.gym.shared.exception.auth.InvalidCredentialsException;
-import com.backend.gym.shared.exception.auth.InvalidTokenException;
-import com.backend.gym.shared.exception.auth.InvalidVerificationCodeException;
-import com.backend.gym.shared.exception.auth.VerificationCodeExpiredException;
-import com.backend.gym.shared.exception.competition.CompetitionInviteNotPendingException;
 import com.backend.gym.shared.exception.domain.AlreadyExistsException;
+import com.backend.gym.shared.exception.domain.AuthException;
 import com.backend.gym.shared.exception.domain.BusinessException;
 import com.backend.gym.shared.exception.domain.NotFoundException;
 import com.backend.gym.shared.exception.storage.FileUploadException;
-import com.backend.gym.shared.exception.user.UserNotVerifiedException;
-
-import org.springframework.http.HttpStatus;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidCredentialsException.class)
+    @ExceptionHandler(AuthException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleInvalidCredentials(InvalidCredentialsException ex) {
+    public ErrorResponse handleAuth(AuthException ex) {
         return new ErrorResponse("UNAUTHORIZED", ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidTokenException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleInvalidToken(InvalidTokenException ex) {
-        return new ErrorResponse("INVALID_TOKEN", ex.getMessage());
-    }
-
-    @ExceptionHandler({InvalidVerificationCodeException.class, VerificationCodeExpiredException.class})
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleVerificationCode(BusinessException ex) {
-        return new ErrorResponse("UNAUTHORIZED", ex.getMessage());
-    }
-
-    @ExceptionHandler(UserNotVerifiedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleUserNotVerified(UserNotVerifiedException ex) {
-        return new ErrorResponse("FORBIDDEN", ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
@@ -56,22 +32,10 @@ public class GlobalExceptionHandler {
         return new ErrorResponse("CONFLICT", ex.getMessage());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
-        return new ErrorResponse("BAD_REQUEST", ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleIllegalState(IllegalStateException ex) {
-        return new ErrorResponse("CONFLICT", ex.getMessage());
-    }
-
-    @ExceptionHandler(CompetitionInviteNotPendingException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleCompetitionInviteNotPending(CompetitionInviteNotPendingException ex) {
-        return new ErrorResponse("COMPETITION_INVITE_NOT_PENDING", ex.getMessage());
+    public ErrorResponse handleBusiness(BusinessException ex) {
+        return new ErrorResponse("BUSINESS_ERROR", ex.getMessage());
     }
 
     @ExceptionHandler(FileUploadException.class)

@@ -14,13 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface LoadEntryJpaRepository extends JpaRepository<LoadEntryEntity, UUID> {
     Optional<LoadEntryEntity> findTopByExerciseIdAndUserIdOrderByCreatedAtDesc(UUID exerciseId, UUID userId);
-    Page<LoadEntryEntity> findAllByExerciseIdAndUserId(UUID exerciseId, UUID userId, Pageable pageable);
-    Page<LoadEntryEntity> findAllByExerciseIdAndUserIdAndWorkoutId(UUID exerciseId, UUID userId, UUID workoutId, Pageable pageable);
-    @Query("SELECT DISTINCT l.performedAt FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.performedAt DESC")
-    List<LocalDate> findDistinctPerformedDatesByUserId(@Param("userId") UUID userId);
-    @Query("SELECT l FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.createdAt DESC LIMIT 5")
-    List<LoadEntryEntity> findLastFiveByUserId(@Param("userId") UUID userId);
-    @Query("""
+        @Query("""
         SELECT l FROM LoadEntryEntity l
         WHERE l.exercise.id IN :exerciseIds
         AND l.user.id = :userId
@@ -32,7 +26,7 @@ public interface LoadEntryJpaRepository extends JpaRepository<LoadEntryEntity, U
                 AND l2.workout IS NULL
         )
     """)
-    List<LoadEntryEntity> findLastByExerciseIdInAndUserIdAndWorkoutIdIsNullOrderByCreatedAtDesc(
+    Optional<LoadEntryEntity> findLastByExerciseIdInAndUserIdAndWorkoutIdIsNullOrderByCreatedAtDesc(
         @Param("exerciseIds") List<UUID> exerciseIds,
         @Param("userId") UUID userId
     );
@@ -48,11 +42,17 @@ public interface LoadEntryJpaRepository extends JpaRepository<LoadEntryEntity, U
                 AND l2.workout.id = :workoutId
         )
     """)
-    List<LoadEntryEntity> findLastByExerciseIdInAndUserIdAndWorkoutIdOrderByCreatedAtDesc(
+    Optional<LoadEntryEntity> findLastByExerciseIdInAndUserIdAndWorkoutIdOrderByCreatedAtDesc(
         @Param("exerciseIds") List<UUID> exerciseIds,
         @Param("userId") UUID userId,
         @Param("workoutId") UUID workoutId
     );
+    @Query("SELECT DISTINCT l.performedAt FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.performedAt DESC")
+    List<LocalDate> findDistinctPerformedDatesByUserId(@Param("userId") UUID userId);
+    @Query("SELECT l FROM LoadEntryEntity l WHERE l.user.id = :userId ORDER BY l.createdAt DESC LIMIT 5")
+    List<LoadEntryEntity> findLastFiveByUserId(@Param("userId") UUID userId);
+    Page<LoadEntryEntity> findAllByExerciseIdAndUserId(UUID exerciseId, UUID userId, Pageable pageable);
+    Page<LoadEntryEntity> findAllByExerciseIdAndUserIdAndWorkoutId(UUID exerciseId, UUID userId, UUID workoutId, Pageable pageable);
     Page<LoadEntryEntity> findAllByUserId(UUID userId, Pageable pageable);
     Page<LoadEntryEntity> findAllByExerciseId(UUID exerciseId, Pageable pageable);
     Page<LoadEntryEntity> findAllByExerciseIdAndWorkoutId(UUID exerciseId, UUID workoutId, Pageable pageable);

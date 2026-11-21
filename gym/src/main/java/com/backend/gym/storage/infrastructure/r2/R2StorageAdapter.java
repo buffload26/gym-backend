@@ -47,16 +47,20 @@ public class R2StorageAdapter implements FileStoragePort {
     }
 
     @Override
-    public void delete(String fileName) {
+    public void delete(String fileUrl) {
         try {
+            String objectKey = fileUrl.startsWith(publicUrl)
+                ? fileUrl.replace(publicUrl + "/", "")
+                : fileUrl;
+
             DeleteObjectRequest request = DeleteObjectRequest.builder()
                 .bucket(bucket)
-                .key(fileName)
+                .key(objectKey)
                 .build();
 
             r2Client.deleteObject(request);
         } catch (Exception e) {
-            throw new FileUploadException("Failed to delete file: " + fileName);
+            throw new FileUploadException("Failed to delete file: " + fileUrl);
         }
     }
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.backend.gym.exercise.application.port.out.ExerciseRepositoryPort;
 import com.backend.gym.exercise.domain.Exercise;
+import com.backend.gym.exercise.infrastructure.persistence.specification.ExerciseSpecification;
 
 import lombok.RequiredArgsConstructor;
 

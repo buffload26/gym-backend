@@ -88,8 +88,8 @@ public class WorkoutExerciseService implements
 
         UUID userId = workoutExercisePage.getContent().get(0).workout().user().id();
 
-        List<LoadEntry> workoutLoads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutId(exerciseIds, userId, workoutId);
-        List<LoadEntry> standaloneLoads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutIdIsNull(exerciseIds, userId);
+        List<LoadEntry> workoutLoads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutId(exerciseIds, userId, workoutId).map(List::of).orElse(List.of());
+        List<LoadEntry> standaloneLoads = loadEntryRepository.findLastByExerciseIdInAndUserIdAndWorkoutIdIsNull(exerciseIds, userId).map(List::of).orElse(List.of());
 
         Map<UUID, List<LoadEntry>> workoutLoadsByExerciseId = workoutLoads.stream()
             .collect(Collectors.groupingBy(load -> load.exercise().id()));

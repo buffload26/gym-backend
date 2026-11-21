@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import com.backend.gym.competition.application.port.out.CompetitionParticipantRepositoryPort;
 import com.backend.gym.competition.domain.CompetitionParticipant;
 import com.backend.gym.competition.domain.CompetitionParticipantStatus;
+import com.backend.gym.competition.infrastructure.persistence.projection.CompetitionParticipantCountProjection;
+import com.backend.gym.competition.infrastructure.persistence.specification.CompetitionParticipantSpecification;
 
 import lombok.RequiredArgsConstructor;
 

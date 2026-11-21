@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.backend.gym.competition.infrastructure.persistence.projection.CompetitionParticipantCountProjection;
+
 public interface CompetitionParticipantJpaRepository extends
         JpaRepository<CompetitionParticipantEntity, UUID>,
         JpaSpecificationExecutor<CompetitionParticipantEntity> {
@@ -32,7 +34,7 @@ public interface CompetitionParticipantJpaRepository extends
         @Param("competitionId") UUID competitionId
     );
     @Query("""
-        SELECT new com.backend.gym.competition.infrastructure.persistence.CompetitionParticipantCountProjection(
+        SELECT new com.backend.gym.competition.infrastructure.persistence.projection.CompetitionParticipantCountProjection(
             cp.competition.id,
             COUNT(cp.id)
         )

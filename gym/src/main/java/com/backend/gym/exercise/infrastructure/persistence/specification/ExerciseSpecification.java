@@ -1,6 +1,8 @@
-package com.backend.gym.exercise.infrastructure.persistence;
+package com.backend.gym.exercise.infrastructure.persistence.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+
+import com.backend.gym.exercise.infrastructure.persistence.ExerciseEntity;
 
 import java.util.UUID;
 

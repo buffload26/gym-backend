@@ -15,12 +15,12 @@ public interface LoadEntryRepositoryPort {
     LoadEntry save(LoadEntry loadEntry);
     Optional<LoadEntry> findById(UUID id);
     Optional<LoadEntry> findLastByExerciseIdAndUserId(UUID exerciseId, UUID userId);
-    Page<LoadEntry> findAllByUserId(UUID userId, Pageable pageable);
-    Page<LoadEntry> findAllByExerciseIdAndUserIdAndWorkoutId(UUID exerciseId, UUID userId, UUID workoutId, Pageable pageable);
-    List<LoadEntry> findLastByExerciseIdInAndUserIdAndWorkoutIdIsNull(List<UUID> exerciseIds, UUID userId);
-    List<LoadEntry> findLastByExerciseIdInAndUserIdAndWorkoutId(List<UUID> exerciseIds, UUID userId, UUID workoutId);
+    Optional<LoadEntry> findLastByExerciseIdInAndUserIdAndWorkoutIdIsNull(List<UUID> exerciseIds, UUID userId);
+    Optional<LoadEntry> findLastByExerciseIdInAndUserIdAndWorkoutId(List<UUID> exerciseIds, UUID userId, UUID workoutId);
     List<LocalDate> findDistinctPerformedDatesByUserId(UUID userId);
     List<LoadEntry> findLastFiveByUserId(UUID userId);
+    Page<LoadEntry> findAllByUserId(UUID userId, Pageable pageable);
+    Page<LoadEntry> findAllByExerciseIdAndUserIdAndWorkoutId(UUID exerciseId, UUID userId, UUID workoutId, Pageable pageable);
     void deleteById(UUID id);
 
     int countByUserIdAndMonth(UUID userId, int month, int year);
