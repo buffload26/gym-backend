@@ -30,5 +30,4 @@ public interface SubmissionJpaRepository extends
         @Param("competitionId") UUID competitionId,
         Pageable pageable
     );
-    boolean existsByCompetitionIdAndUserId(UUID competitionId, UUID userId);
 }

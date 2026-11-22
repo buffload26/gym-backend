@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.gym.notification.application.port.in.GetNotificationsUseCase;
 import com.backend.gym.notification.application.port.in.MarkNotificationReadUseCase;
 import com.backend.gym.notification.application.port.in.SendPushNotificationUseCase;
+import com.backend.gym.notification.application.port.out.AsyncPushNotificationPort;
 import com.backend.gym.notification.application.port.out.PushNotificationPort;
 import com.backend.gym.notification.application.port.out.PushNotificationRepositoryPort;
 import com.backend.gym.notification.application.port.out.UserDeviceTokenRepositoryPort;
@@ -32,7 +33,7 @@ public class PushNotificationService implements
     private final PushNotificationRepositoryPort notificationRepository;
     private final UserDeviceTokenRepositoryPort deviceTokenRepository;
     private final UserRepositoryPort userRepository;
-    private final PushNotificationPort pushNotificationPort;
+    private final AsyncPushNotificationPort asyncPushNotificationPort;
 
     @Override
     @Transactional
@@ -58,9 +59,7 @@ public class PushNotificationService implements
             .map(dt -> dt.token())
             .toList();
 
-        tokens.forEach(token ->
-            pushNotificationPort.send(token, command.title(), command.body())
-        );
+        asyncPushNotificationPort.sendAsync(tokens, command.title(), command.body());
 
         return saved;
     }
