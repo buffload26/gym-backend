@@ -14,7 +14,9 @@ public interface SubmissionRepositoryPort {
     Submission save(Submission submission);
     Optional<Submission> findById(UUID id);
     boolean existsByCompetitionIdAndUserId(UUID competitionId, UUID userId);
+    boolean existsByCompetitionIdAndUserIdAndStatus(UUID competitionId, UUID userId, SubmissionStatus status);
     Page<Submission> findAllByCompetitionId(UUID competitionId, Pageable pageable);
     Page<Submission> findAllByCompetitionIdAndStatus(UUID competitionId, SubmissionStatus status, Pageable pageable);
+    Page<Submission> findAcceptedRankingByCompetitionId(UUID competitionId, Pageable pageable);
     void deleteById(UUID id);
 }

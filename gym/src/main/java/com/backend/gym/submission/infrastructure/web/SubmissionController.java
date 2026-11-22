@@ -105,6 +105,23 @@ public class SubmissionController {
         return ResponseEntity.ok(submissions);
     }
 
+    @GetMapping("/ranking")
+    @Operation(summary = "Get accepted ranking", description = "Returns accepted submissions ordered by load, one per user")
+    @ApiResponse(responseCode = "200", description = "Ranking returned successfully")
+    public ResponseEntity<Page<SubmissionResponse>> findAcceptedRanking(
+            @RequestParam UUID competitionId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<SubmissionResponse> ranking = getSubmissionUseCase
+            .findAcceptedRanking(competitionId, pageable)
+            .map(SubmissionResponse::fromDomain);
+
+        return ResponseEntity.ok(ranking);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete submission")
     @ApiResponses({

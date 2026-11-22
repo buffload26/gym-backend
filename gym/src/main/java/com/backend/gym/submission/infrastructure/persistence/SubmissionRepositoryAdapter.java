@@ -36,7 +36,22 @@ public class SubmissionRepositoryAdapter implements SubmissionRepositoryPort {
 
     @Override
     public boolean existsByCompetitionIdAndUserId(UUID competitionId, UUID userId) {
-        return jpaRepository.existsByCompetitionIdAndUserId(competitionId, userId);
+        return jpaRepository.exists(
+            Specification
+                .where(SubmissionSpecification.byCompetitionId(competitionId))
+                .and(SubmissionSpecification.byUserId(userId))
+        );
+    }
+
+    @Override
+    public boolean existsByCompetitionIdAndUserIdAndStatus(
+            UUID competitionId, UUID userId, SubmissionStatus status) {
+        return jpaRepository.exists(
+            Specification
+                .where(SubmissionSpecification.byCompetitionId(competitionId))
+                .and(SubmissionSpecification.byUserId(userId))
+                .and(SubmissionSpecification.byStatus(status))
+        );
     }
 
     @Override
@@ -61,6 +76,12 @@ public class SubmissionRepositoryAdapter implements SubmissionRepositoryPort {
                 .and(SubmissionSpecification.byStatus(status));
 
         return jpaRepository.findAll(specification, pageable)
+            .map(SubmissionEntity::toDomain);
+    }
+
+    @Override
+    public Page<Submission> findAcceptedRankingByCompetitionId(UUID competitionId, Pageable pageable) {
+        return jpaRepository.findAcceptedRankingByCompetitionId(competitionId, pageable)
             .map(SubmissionEntity::toDomain);
     }
 

@@ -58,8 +58,8 @@ public class SubmissionService implements
             throw new SubmissionVoterNotParticipantException();
         }
 
-        if (repository.existsByCompetitionIdAndUserId(
-                command.competitionId(), command.userId())) {
+        if (repository.existsByCompetitionIdAndUserIdAndStatus(
+                command.competitionId(), command.userId(), SubmissionStatus.PENDING)) {
             throw new SubmissionAlreadyExistsException();
         }
 
@@ -117,5 +117,11 @@ public class SubmissionService implements
             SubmissionStatus status,
             Pageable pageable) {
         return repository.findAllByCompetitionIdAndStatus(competitionId, status, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Submission> findAcceptedRanking(UUID competitionId, Pageable pageable) {
+        return repository.findAcceptedRankingByCompetitionId(competitionId, pageable);
     }
 }

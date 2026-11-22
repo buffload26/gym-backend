@@ -13,4 +13,5 @@ public interface GetSubmissionUseCase {
     Submission findById(UUID id);
     Page<Submission> findAllByCompetition(UUID competitionId, Pageable pageable);
     Page<Submission> findAllByCompetitionAndStatus(UUID competitionId, SubmissionStatus status, Pageable pageable);
+    Page<Submission> findAcceptedRanking(UUID competitionId, Pageable pageable);
 }
